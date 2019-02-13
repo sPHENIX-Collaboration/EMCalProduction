@@ -1,16 +1,18 @@
 //sPHENIX EMCal fiber counting software
-//Authors: Yongsun Kim, Anabel Romero
+//Authors: Yongsun Kim, Anabel Romero, Xiaoning Wang
 //Based on a macro by Olivier Couet that converts an image to a 2D histogram
+//this version processes two ends of the same block, and print numbers onto a csv
 
 #include <vector>
 #include "commonUtility.h"
 #include <TASImage.h>
 #include <TEllipse.h>
 
-void fiberCounter2(int dbn =5, const char * end = "N", const char * input_folder = "pictures/cropped", const char * output_folder = "analysis")
+void fiberCounter3(int dbn =5, const char * input_folder = "pictures/Calibration/cropped", const char * output_folder = "analysis", const char * output_csv = "analysis/result.csv")
 {
   //short seedThr = 100;
   //short bkgThr = 80;
+  //things lower than 30 is absolutely background...
   short absBkg = 30;
   int absAreaCut = 20;
   
@@ -20,10 +22,28 @@ void fiberCounter2(int dbn =5, const char * end = "N", const char * input_folder
   const int maxY = 1174;
   gStyle->SetPalette(52);
   gStyle->SetOptStat(0);
+  gROOT->SetBatch(kTRUE);
+
+  double result[2][5];
+  TString picture;
+  const char *  end;
+  TH1D* hNfib;
+  TH2D* hOriginal;
+  TH2D* h;
+
+  for (int counter = 0; counter < 2; counter ++){
+  	if (counter == 0){
+  		picture = Form("%s/DBN_%d-N.jpg",input_folder,dbn);
+  		end = "N";
+	} 
+	else {
+  		picture = Form("%s/DBN_%d-W.jpg",input_folder,dbn);
+  		end = "W";
+  	}
   
-  TString picture = Form("%s/DBN_%d-%s.jpg",input_folder,dbn,end);
   TASImage image(picture);
- 
+
+
   UInt_t yPixels = image.GetHeight();
   UInt_t xPixels = image.GetWidth();
   cout << "xPixels = " << xPixels<<endl;
@@ -34,12 +54,12 @@ void fiberCounter2(int dbn =5, const char * end = "N", const char * input_folder
     return;
   }
   
-  TH1D* hNfib = new TH1D("hNfib",";Number of clusters;Entries",4000,0,4000);
+  hNfib = new TH1D("hNfib",";Number of clusters;Entries",4000,0,4000);
 
   UInt_t *argb   = image.GetArgbArray();
   
-  TH2D* hOriginal = new TH2D("hOriginal","Spectrum of Green Light Picture",xPixels,.5,xPixels+1,yPixels+1,.5,yPixels);
-  TH2D* h = hOriginal;
+  hOriginal = new TH2D("hOriginal","Spectrum of Green Light Picture",xPixels,.5,xPixels+1,yPixels+1,.5,yPixels);
+  h = hOriginal;
 
   TH1D* h1d = new TH1D("h1d","Light Intensity of Pixels;Intensity of Pixels;Counts",256,0,256);
   TH1D* henergy = new TH1D(Form("henergy_%d",dbn),"Intensity of clusters;Intensity;Counts",50,0,25000);
@@ -58,17 +78,20 @@ void fiberCounter2(int dbn =5, const char * end = "N", const char * input_folder
 
   TH1D* hDefDist = new TH1D("hDefDist",";RMS xy normalized by sqrt(area);", 200,0,200);
 
-
+  //turn the picture into greyscale 2D hist in root
   h1d->Sumw2();
   for (int row=0; row<xPixels; ++row) {
     for (int col=0; col<yPixels; ++col) {
       int index = col*xPixels+row;
       short grey = argb[index]&0xff ;
       h->SetBinContent(row+1,yPixels-col,grey);
+      //increment the intensity histogram by 1 on corresponding bin
       h1d->Fill(grey);
     }
   }
   
+
+  //create the output pdf canvas
   TCanvas* c0 = new TCanvas("c0","",700,700);
   c0->Divide(2,2);
   c0->cd(1);
@@ -76,11 +99,12 @@ void fiberCounter2(int dbn =5, const char * end = "N", const char * input_folder
   h1d->Draw();
   h1d->SetTitleOffset(1.4,"Y");
   
+
   TH1D* h1dmax = (TH1D*)h1d->Clone("h1dmax");
   h1dmax->GetXaxis()->SetRangeUser(absBkg,256);
   TH1D* h1dmin = (TH1D*)h1d->Clone("h1dmin");
   h1dmin->GetXaxis()->SetRangeUser(absBkg,h1dmax->GetMaximumBin()*h1dmax->GetBinWidth(h1dmax->GetMaximumBin()));
-  short bkgThr = h1dmin->GetMinimumBin()*h1dmin->GetBinWidth(h1dmin->GetMinimumBin())-30;
+  short bkgThr = h1dmin->GetMinimumBin()*h1dmin->GetBinWidth(h1dmin->GetMinimumBin());
   short seedThr = bkgThr-5;
   
   drawText(Form("bkgThr = %d",bkgThr),0.55,0.8);
@@ -407,6 +431,29 @@ void fiberCounter2(int dbn =5, const char * end = "N", const char * input_folder
   
   
   c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,end));
+
+  result[counter][0] = dbn;
+  result[counter][1] = nClst;
+  result[counter][2] = f*100;
+  result[counter][3] = r75*100;
+  result[counter][4] = R*100;
+
+  }
+ 
+  std::ofstream outfile;
+  outfile.open(output_csv, std::ios_base::app);
+  outfile << dbn << ",";
+  for (int ends = 0; ends < 2; ends ++){
+	  for (int count = 1; count < 5; count ++){
+	  	outfile << result[ends][count] << ",";
+	  }
+	  if (ends == 0){
+      outfile << "N" << ",\n";
+      outfile << dbn << ",";
+    } else {
+      outfile << "W" << ",\n";
+    }
+  }
   
   /*
   TFile* fout = new TFile(Form("%s/DBN_%d_outfile.root",folder,dbn),"RECREATE");
