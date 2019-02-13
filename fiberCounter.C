@@ -7,13 +7,16 @@
 #include "commonUtility.h"
 #include <TASImage.h>
 #include <TEllipse.h>
+#include <fstream>
 
-void fiberCounter3(int dbn =5, const char * input_folder = "pictures/Calibration/cropped", const char * output_folder = "analysis", const char * output_csv = "analysis/result.csv")
+void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", const char * output_folder = "test", const char * output_csv = "result.csv")
 {
   //short seedThr = 100;
   //short bkgThr = 80;
   //things lower than 30 is absolutely background...
   short absBkg = 30;
+  //To make sure all possible fibers even with low light is counted, shift the threshold
+  short intShift = 100;
   int absAreaCut = 20;
   
   double zeroInt = 1;
@@ -104,7 +107,7 @@ void fiberCounter3(int dbn =5, const char * input_folder = "pictures/Calibration
   h1dmax->GetXaxis()->SetRangeUser(absBkg,256);
   TH1D* h1dmin = (TH1D*)h1d->Clone("h1dmin");
   h1dmin->GetXaxis()->SetRangeUser(absBkg,h1dmax->GetMaximumBin()*h1dmax->GetBinWidth(h1dmax->GetMaximumBin()));
-  short bkgThr = h1dmin->GetMinimumBin()*h1dmin->GetBinWidth(h1dmin->GetMinimumBin());
+  short bkgThr = h1dmin->GetMinimumBin()*h1dmin->GetBinWidth(h1dmin->GetMinimumBin())-intShift;
   short seedThr = bkgThr-5;
   
   drawText(Form("bkgThr = %d",bkgThr),0.55,0.8);
@@ -174,7 +177,7 @@ void fiberCounter3(int dbn =5, const char * input_folder = "pictures/Calibration
 		}
       }
 
-      short localMin = localMax * 0.7;
+      short localMin = localMax * 0.4;
       for ( int ix = ix0 ; ix <= ix0 + searchRange - 1 ; ix++ ) {
         if (ix > nXbins ) continue;
         for ( int iy = iy0 ; iy <= iy0 + searchRange - 1 ; iy++ ) {
@@ -191,6 +194,8 @@ void fiberCounter3(int dbn =5, const char * input_folder = "pictures/Calibration
     }}
   
   int nClst = 0;
+  //add an array tracking each cluster's size
+  std::vector<int> nSize;
   
   for ( int ix0=1 ; ix0<=nXbins ; ix0++) {
     for ( int iy0=1 ; iy0<=nYbins ; iy0++) {
@@ -291,10 +296,16 @@ void fiberCounter3(int dbn =5, const char * input_folder = "pictures/Calibration
 	    }*/
 	}
 
+	//attach valid size
       if ( px.size() < absAreaCut )  {
 		//cout << " The cluster's area is too small.  Smaller than " << absAreaCut << ", so this is skipped! " << endl;
 		continue;
       }
+
+	//attach valid size
+      nSize.push_back(px.size());
+
+
       nClst++;
       //cout << "Number of hits in "<<nClst<<"th cluster: " << px.size() << ",  nIteration = "<<nIter<<endl;  
       int sumEnergy = 0;
@@ -378,27 +389,43 @@ void fiberCounter3(int dbn =5, const char * input_folder = "pictures/Calibration
   //densityNpix->Draw("colz");
   
 
-  int n75 =0;
+//found average size after eliminating 20 smallest clusters and 20 maximum clusters.  
+  sort(nSize.begin(),nSize.end());
+  int totSize = 0;
+  for (int di = 20; di < (nSize.size()-20); di++){
+  	totSize = totSize + nSize[di];
+  }
+  double aveSize = (double) totSize/(nSize.size()-40);
+
+  int n75 =0, nbad=0, nCorrected=nClst;
   for ( int ci = 0 ; ci< vClstE.size() ; ci++) {
 	  double energy = vClstE[ci] / (henergy->GetMaximumBin()*henergy->GetBinWidth(henergy->GetMaximumBin()));
-	  if (energy<0.75) n75++;
-	  henergyNorm->Fill(energy) ;
-    
+	  int thisSize = nSize[ci];
+	  if (energy < 0.75) n75++;
+      if (energy < 0.25) { nCorrected = nCorrected-1; nbad++;}
+	  if (thisSize > 1.6*aveSize) {
+	  	int multi=2;
+	  	while (thisSize > (multi+0.6)*aveSize ){
+	  	 multi++;
+	  	}
+	  	energy = energy/multi;
+	  }
+	  henergyNorm->Fill(energy) ;  
   }
   
-  double f = nClst/2668.;
-  double r75 = n75/2668.;
+  double f = nCorrected/2668.;
+  double r75 = (n75-nbad)/2668.;
   double R = henergyNorm->GetRMS()/henergyNorm->GetMean();
   
   cout << endl<< "DBN = " << dbn << endl;
-  cout << "Number of fibers = " << nClst << endl;
+  cout << "Number of fibers = " << nCorrected << endl;
   cout << "#Fibers/#Holes (%)= " << f*100 << endl;
   cout << "r75 (%) = " <<r75*100 <<endl;
   cout << "R (%) = " <<R*100 <<endl<<endl;
 
   
   
-  hNfib->Fill(nClst);
+  hNfib->Fill(nCorrected);
   hMeanE->Fill( henergy->GetMean() );
   hRMSE->Fill( henergy->GetRMS() );
   hRMSNorm->Fill(  henergy->GetRMS() / henergy->GetMean() ) ;
@@ -424,7 +451,9 @@ void fiberCounter3(int dbn =5, const char * input_folder = "pictures/Calibration
   henergyNorm->Draw();
   henergyNorm->SetTitleOffset(1.4,"Y");
   drawText(Form("DBN = %d",dbn),0.45,0.8);
-  drawText(Form("# Fibers = %d",nClst),0.45,0.7);
+  if (counter==0) drawText("Narrow end",0.45,0.7);
+  if (counter==1) drawText("Wide end",0.45,0.7);
+  drawText(Form("# Fibers = %d",nCorrected),0.45,0.7);
   drawText(Form("Fibers (%%) = %1.3f",f*100),0.45,0.6);
   drawText(Form("r75 (%%) = %1.3f",r75*100),0.45,0.5);
   drawText(Form("R (%%)= %1.3f",R*100),0.45,0.4);
@@ -433,7 +462,7 @@ void fiberCounter3(int dbn =5, const char * input_folder = "pictures/Calibration
   c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,end));
 
   result[counter][0] = dbn;
-  result[counter][1] = nClst;
+  result[counter][1] = nCorrected;
   result[counter][2] = f*100;
   result[counter][3] = r75*100;
   result[counter][4] = R*100;
