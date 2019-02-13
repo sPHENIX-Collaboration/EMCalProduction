@@ -1,7 +1,6 @@
 //sPHENIX EMCal fiber counting software
-//Authors: Yongsun Kim, Anabel Romero, Xiaoning Wang
+//Authors: Yongsun Kim, Anabel Romero
 //Based on a macro by Olivier Couet that converts an image to a 2D histogram
-//this version processes two ends of the same block, and print numbers onto a csv
 
 #include <vector>
 #include "commonUtility.h"
@@ -9,14 +8,11 @@
 #include <TEllipse.h>
 #include <fstream>
 
-void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", const char * output_folder = "test", const char * output_csv = "result.csv")
+void fiberCounter6(int dbn = 42, const char * input_folder = "pictures/sector0_small", const char * output_folder = "pictures/sector0/analysis", const char * output_csv = "result.csv")
 {
   //short seedThr = 100;
   //short bkgThr = 80;
-  //things lower than 30 is absolutely background...
   short absBkg = 30;
-  //To make sure all possible fibers even with low light is counted, shift the threshold
-  short intShift = 100;
   int absAreaCut = 20;
   
   double zeroInt = 1;
@@ -26,27 +22,25 @@ void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", c
   gStyle->SetPalette(52);
   gStyle->SetOptStat(0);
   gROOT->SetBatch(kTRUE);
+  
 
   double result[2][5];
   TString picture;
   const char *  end;
-  TH1D* hNfib;
-  TH2D* hOriginal;
-  TH2D* h;
 
   for (int counter = 0; counter < 2; counter ++){
-  	if (counter == 0){
-  		picture = Form("%s/DBN_%d-N.jpg",input_folder,dbn);
-  		end = "N";
-	} 
-	else {
-  		picture = Form("%s/DBN_%d-W.jpg",input_folder,dbn);
-  		end = "W";
-  	}
-  
+    if (counter == 0){
+      picture = Form("%s/DBN_%d-N_cropped.JPG",input_folder,dbn);
+      end = "N";
+  } 
+  else {
+      picture = Form("%s/DBN_%d-W_cropped.JPG",input_folder,dbn);
+      end = "W";
+    }
+
+
   TASImage image(picture);
-
-
+ 
   UInt_t yPixels = image.GetHeight();
   UInt_t xPixels = image.GetWidth();
   cout << "xPixels = " << xPixels<<endl;
@@ -57,12 +51,12 @@ void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", c
     return;
   }
   
-  hNfib = new TH1D("hNfib",";Number of clusters;Entries",4000,0,4000);
+  TH1D* hNfib = new TH1D("hNfib",";Number of clusters;Entries",4000,0,4000);
 
   UInt_t *argb   = image.GetArgbArray();
   
-  hOriginal = new TH2D("hOriginal","Spectrum of Green Light Picture",xPixels,.5,xPixels+1,yPixels+1,.5,yPixels);
-  h = hOriginal;
+  TH2D* hOriginal = new TH2D("hOriginal","Spectrum of Green Light Picture",xPixels,.5,xPixels+1,yPixels+1,.5,yPixels);
+  TH2D* h = hOriginal;
 
   TH1D* h1d = new TH1D("h1d","Light Intensity of Pixels;Intensity of Pixels;Counts",256,0,256);
   TH1D* henergy = new TH1D(Form("henergy_%d",dbn),"Intensity of clusters;Intensity;Counts",50,0,25000);
@@ -81,20 +75,17 @@ void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", c
 
   TH1D* hDefDist = new TH1D("hDefDist",";RMS xy normalized by sqrt(area);", 200,0,200);
 
-  //turn the picture into greyscale 2D hist in root
+
   h1d->Sumw2();
   for (int row=0; row<xPixels; ++row) {
     for (int col=0; col<yPixels; ++col) {
       int index = col*xPixels+row;
       short grey = argb[index]&0xff ;
       h->SetBinContent(row+1,yPixels-col,grey);
-      //increment the intensity histogram by 1 on corresponding bin
       h1d->Fill(grey);
     }
   }
   
-
-  //create the output pdf canvas
   TCanvas* c0 = new TCanvas("c0","",700,700);
   c0->Divide(2,2);
   c0->cd(1);
@@ -102,17 +93,17 @@ void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", c
   h1d->Draw();
   h1d->SetTitleOffset(1.4,"Y");
   
-
   TH1D* h1dmax = (TH1D*)h1d->Clone("h1dmax");
   h1dmax->GetXaxis()->SetRangeUser(absBkg,256);
   TH1D* h1dmin = (TH1D*)h1d->Clone("h1dmin");
   h1dmin->GetXaxis()->SetRangeUser(absBkg,h1dmax->GetMaximumBin()*h1dmax->GetBinWidth(h1dmax->GetMaximumBin()));
-  short bkgThr = h1dmin->GetMinimumBin()*h1dmin->GetBinWidth(h1dmin->GetMinimumBin())-intShift;
+  short bkgThr = (h1dmin->GetMinimumBin()*h1dmin->GetBinWidth(h1dmin->GetMinimumBin()))*0.8;
   short seedThr = bkgThr-5;
   
-  drawText(Form("bkgThr = %d",bkgThr),0.55,0.8);
+  drawText(Form("bkgThr = %d",bkgThr),0.5,0.8);
+  drawText(Form("absBkg = %d",absBkg),0.5,0.7);
   //drawText(Form("seedThr = %d",seedThr),0.6,0.8);
-  jumSun(seedThr,0.5,seedThr,2e6);
+  jumSun(absBkg,0.5,absBkg,2e6);
   jumSun(bkgThr,0.5,bkgThr,2e6);
   gPad->SetLogy();
   //c0->cd(2);
@@ -177,7 +168,7 @@ void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", c
 		}
       }
 
-      short localMin = localMax * 0.4;
+      short localMin = localMax * 0.7;
       for ( int ix = ix0 ; ix <= ix0 + searchRange - 1 ; ix++ ) {
         if (ix > nXbins ) continue;
         for ( int iy = iy0 ; iy <= iy0 + searchRange - 1 ; iy++ ) {
@@ -194,7 +185,7 @@ void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", c
     }}
   
   int nClst = 0;
-  //add an array tracking each cluster's size
+    //add an array tracking each cluster's size
   std::vector<int> nSize;
   
   for ( int ix0=1 ; ix0<=nXbins ; ix0++) {
@@ -296,17 +287,12 @@ void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", c
 	    }*/
 	}
 
-	//attach valid size
       if ( px.size() < absAreaCut )  {
 		//cout << " The cluster's area is too small.  Smaller than " << absAreaCut << ", so this is skipped! " << endl;
 		continue;
       }
-
-	//attach valid size
-      nSize.push_back(px.size());
-
-
       nClst++;
+      nSize.push_back(px.size());
       //cout << "Number of hits in "<<nClst<<"th cluster: " << px.size() << ",  nIteration = "<<nIter<<endl;  
       int sumEnergy = 0;
       for ( int vi=0 ; vi < px.size() ; vi++) {
@@ -388,28 +374,35 @@ void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", c
   densityNpix->SetXTitle("Number of Pixels per Fiber");
   //densityNpix->Draw("colz");
   
-
-//found average size after eliminating 20 smallest clusters and 20 maximum clusters.  
-  sort(nSize.begin(),nSize.end());
+  
   int totSize = 0;
-  for (int di = 20; di < (nSize.size()-20); di++){
-  	totSize = totSize + nSize[di];
+  int totValid = nSize.size();
+  for (int di = 0; di < nSize.size(); di++){
+    int localSize = nSize[di];
+    if ((localSize>=(2*absAreaCut))&&(localSize<5*absAreaCut)){
+      totSize = totSize + nSize[di];
+    } else {
+      totValid = totValid-1;
+    }
   }
-  double aveSize = (double) totSize/(nSize.size()-40);
+  double aveSize = (double) totSize/totValid;
+  cout<< aveSize;
+  cout<<nClst;
 
-  int n75 =0, nbad=0, nCorrected=nClst;
+  int n75=0,nbad=0,nCorrected=nClst;
   for ( int ci = 0 ; ci< vClstE.size() ; ci++) {
 	  double energy = vClstE[ci] / (henergy->GetMaximumBin()*henergy->GetBinWidth(henergy->GetMaximumBin()));
-	  int thisSize = nSize[ci];
-	  if (energy < 0.75) n75++;
-      if (energy < 0.25) { nCorrected = nCorrected-1; nbad++;}
-	  if (thisSize > 1.6*aveSize) {
-	  	int multi=2;
-	  	while (thisSize > (multi+0.6)*aveSize ){
-	  	 multi++;
-	  	}
-	  	energy = energy/multi;
-	  }
+	  if (energy<0.75) n75++;
+	  if (energy<0.25) {nCorrected=nCorrected-1; nbad++;}
+    int thisSize = nSize[ci];
+    if (thisSize > 1.6*aveSize) {
+      int multi=2;
+      while (thisSize > (multi+0.6)*aveSize ){
+       multi++;
+      }
+    energy = energy/multi;
+    nCorrected = nCorrected + multi - 1;
+  }
 	  henergyNorm->Fill(energy) ;  
   }
   
@@ -423,7 +416,6 @@ void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", c
   cout << "r75 (%) = " <<r75*100 <<endl;
   cout << "R (%) = " <<R*100 <<endl<<endl;
 
-  
   
   hNfib->Fill(nCorrected);
   hMeanE->Fill( henergy->GetMean() );
@@ -451,39 +443,41 @@ void fiberCounter4(int dbn =5, const char * input_folder = "pictures/cropped", c
   henergyNorm->Draw();
   henergyNorm->SetTitleOffset(1.4,"Y");
   drawText(Form("DBN = %d",dbn),0.45,0.8);
-  if (counter==0) drawText("Narrow end",0.45,0.7);
-  if (counter==1) drawText("Wide end",0.45,0.7);
-  drawText(Form("# Fibers = %d",nCorrected),0.45,0.7);
-  drawText(Form("Fibers (%%) = %1.3f",f*100),0.45,0.6);
-  drawText(Form("r75 (%%) = %1.3f",r75*100),0.45,0.5);
-  drawText(Form("R (%%)= %1.3f",R*100),0.45,0.4);
+  //if (end=="N") drawText("Narrow end",0.45,0.7);
+  //if (end=="W") drawText("Wide end",0.45,0.7);
+  drawText(Form("# Fibers = %d",nCorrected),0.45,0.6);
+  drawText(Form("Fibers (%%) = %1.3f",f*100),0.45,0.5);
+  drawText(Form("r75 (%%) = %1.3f",r75*100),0.45,0.4);
+  drawText(Form("R (%%)= %1.3f",R*100),0.45,0.3);
+
   
-  
-  c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,end));
+  c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,end));;
+
 
   result[counter][0] = dbn;
   result[counter][1] = nCorrected;
   result[counter][2] = f*100;
   result[counter][3] = r75*100;
   result[counter][4] = R*100;
-
-  }
- 
+}
+  
   std::ofstream outfile;
   outfile.open(output_csv, std::ios_base::app);
   outfile << dbn << ",";
   for (int ends = 0; ends < 2; ends ++){
-	  for (int count = 1; count < 5; count ++){
-	  	outfile << result[ends][count] << ",";
-	  }
-	  if (ends == 0){
+    for (int count = 1; count < 5; count ++){
+      outfile << result[ends][count] << ",";
+    }
+    if (ends == 0){
       outfile << "N" << ",\n";
       outfile << dbn << ",";
     } else {
       outfile << "W" << ",\n";
     }
   }
-  
+  outfile.close();
+
+
   /*
   TFile* fout = new TFile(Form("%s/DBN_%d_outfile.root",folder,dbn),"RECREATE");
   henergy->Write();
