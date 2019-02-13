@@ -7,7 +7,7 @@
 #include <TASImage.h>
 #include <TEllipse.h>
 
-void fiberCounter1(int dbn = 42, const char * end = "N", const char * folder = "pictures/cropped")
+void fiberCounter2(int dbn =5, const char * end = "N", const char * input_folder = "pictures/cropped", const char * output_folder = "analysis")
 {
   //short seedThr = 100;
   //short bkgThr = 80;
@@ -21,11 +21,7 @@ void fiberCounter1(int dbn = 42, const char * end = "N", const char * folder = "
   gStyle->SetPalette(52);
   gStyle->SetOptStat(0);
   
-  //int dbn = 42;
-  //const char * folder = "block_pictures/official_pictures/sector0-cropped";
-  TString picture = Form("%s/DBN_%d-%s.jpg",folder,dbn,end);
-  //TString infName = Form("block_pictures/official_pictures/sector0-cropped/DBN_%d-N.jpg",dbn);
-  
+  TString picture = Form("%s/DBN_%d-%s.jpg",input_folder,dbn,end);
   TASImage image(picture);
  
   UInt_t yPixels = image.GetHeight();
@@ -87,7 +83,7 @@ void fiberCounter1(int dbn = 42, const char * end = "N", const char * folder = "
   short bkgThr = h1dmin->GetMinimumBin()*h1dmin->GetBinWidth(h1dmin->GetMinimumBin())-30;
   short seedThr = bkgThr-5;
   
-  drawText(Form("bkgThr = %d",bkgThr),0.15,0.8);
+  drawText(Form("bkgThr = %d",bkgThr),0.55,0.8);
   //drawText(Form("seedThr = %d",seedThr),0.6,0.8);
   jumSun(seedThr,0.5,seedThr,2e6);
   jumSun(bkgThr,0.5,bkgThr,2e6);
@@ -410,7 +406,7 @@ void fiberCounter1(int dbn = 42, const char * end = "N", const char * folder = "
   drawText(Form("R (%%)= %1.3f",R*100),0.45,0.4);
   
   
-  c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",folder,dbn,end));
+  c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,end));
   
   /*
   TFile* fout = new TFile(Form("%s/DBN_%d_outfile.root",folder,dbn),"RECREATE");
