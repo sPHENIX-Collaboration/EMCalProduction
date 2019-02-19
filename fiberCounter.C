@@ -1,5 +1,5 @@
 //sPHENIX EMCal fiber counting software
-//Authors: Yongsun Kim, Anabel Romero
+//Authors: Yongsun Kim, Anabel Romero， Xiaoning Wang
 //Based on a macro by Olivier Couet that converts an image to a 2D histogram
 
 #include <vector>
@@ -8,7 +8,7 @@
 #include <TEllipse.h>
 #include <fstream>
 
-void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder = "pictures/cropped", const char * output_folder = "pictures/Feb_18_2019/analysis", const char * output_csv = "pictures/Feb_18_2019/result.csv"){
+void fiberCounter7(int dbn = 42, const char* end = "N", const char * input_folder = "pictures/cropped", const char * output_folder = "pictures/Feb_18_2019/analysis", const char * output_csv = "pictures/Feb_18_2019/result.csv"){
 
   //short seedThr = 100;
   //short bkgThr = 80;
