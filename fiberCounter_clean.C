@@ -8,7 +8,7 @@
 #include <TEllipse.h>
 #include <fstream>
 
-void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder = "sector0_small", const char * output_folder = "sector0_small", const char * output_csv = "sector0_small/result.csv"){
+void fiberCounter_clean(int dbn = 42, const char* end = "N", const char * input_folder = "dropped/cropped", const char * output_folder = "Feb_20_Analysis", const char * output_csv = "Feb_20_dropped.csv"){
 
   //short seedThr = 100;
   //short bkgThr = 80;
@@ -28,7 +28,7 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   gStyle->SetOptStat(0);
   gROOT->SetBatch(kTRUE);
   
-  TString picture = Form("%s/DBN_%d-%s_cropped.JPG",input_folder,dbn,end);
+  TString picture = Form("%s/DBN_%d-%s.jpg",input_folder,dbn,end);
   TASImage image(picture);
  
   UInt_t yPixels = image.GetHeight();
@@ -81,7 +81,7 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   }
   
   TCanvas* c0 = new TCanvas("c0","",700,700);
-  c0->Divide(2,3);
+  c0->Divide(2,2);
   c0->cd(1);
   h1d->SetAxisRange(0.5,2e6,"Y");
   h1d->Draw();
@@ -449,10 +449,10 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   /*hNfib->Fill(nCorrected);
   hMeanE->Fill( henergy->GetMean() );
   hRMSE->Fill( henergy->GetRMS() );
-  hRMSNorm->Fill(  henergy->GetRMS() / henergy->GetMean() ) ;*/
+  hRMSNorm->Fill(  henergy->GetRMS() / henergy->GetMean() ) ;
   
 
-  c0->cd(2);
+  //c0->cd(2);
   h->SetAxisRange(0,256,"z");
   h->Draw("colz");
   gPad->SetRightMargin(0.11);
@@ -465,7 +465,7 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   }
 
 
-  handsomeTH1(henergy,1);
+  //handsomeTH1(henergy,1);
   //henergy->Draw();
   
   c0->cd(3);
@@ -482,14 +482,14 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
 
 
   //This section is used to set range for viewing only the block surface
-  /*int startPixelx = 0;
+  int startPixelx = 0;
   int startPixely = 0;
   int endPixelx = 0;
-  int endPixely = 0;*/
+  int endPixely = 0;
 
 
 
-  c0->cd(4);
+  c0->cd(2);
   cleverRangeZ(densityInten);
   densityInten->SetTitle("2D Light Intensity Distribution");
   densityInten->Scale(1/densityInten->GetMaximum());
@@ -507,7 +507,7 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   seCor->Draw("colz");
 
 
-  c0->cd(5);
+  c0->cd(4);
   hsizeNorm->Draw("HIST");
   hsizeNorm->SetTitleOffset(1.4,"Y");
   drawText(Form("DBN = %d",dbn),0.45,0.8);
@@ -519,12 +519,24 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   drawText(Form("rbad (%%) = %1.3f",rbad*100),0.45,0.3);
   drawText(Form("R (%%)= %1.3f",R*100),0.45,0.2);
 
+  std::ofstream outfile;
+  outfile.open(output_csv, std::ios_base::app);
+  outfile << dbn << "," << end << "," << "energy" << ",";
+  for (int bin = 1; bin <=50; bin++){
+    outfile << henergyNorm->GetBinContent(bin) << ",";
+  }
+  outfile << endl << dbn << "," << end << "," << "size" << "," ;
+  for (int bin2 = 1; bin2 <=50; bin2++){
+    outfile << hsizeNorm->GetBinContent(bin2) << ",";
+  }
+  outfile << endl;
+  outfile.close();*/
+
+  
+  //c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,end));
 
 
   
-  c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,end));;
-
-
   std::ifstream infile(output_csv);
   std::ofstream outfile;
   outfile.open(output_csv, std::ios_base::app);
@@ -533,10 +545,12 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   std::getline(infile, str);
 
   if (str == ""){
-    outfile << "DBN" << "," << "End" << "," << "# of Fibers" << "," << "Fiber (%)" << "," << "50-75 (%)" << "," << "15-50 (%)" << "," << "10-15 (%)" << "," << "RMS" << endl;
+    outfile << "DBN" << "," << "End" << "," << "# of Fibers" << "," << "Fiber (%)" << "," << "50-75 (%)" << "," << "15-50 (%)" << "," << "10-15 (%)" << "," << R*100 << endl;
   }
   outfile << dbn << "," << end << "," << nCorrected << "," << f*100 << "," << rgood*100 << "," << rmid*100 << "," << rbad*100 << "," << R*100 << endl;
   outfile.close();
+
+
 
 
   /*
