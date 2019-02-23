@@ -1,6 +1,7 @@
-void scintillation_gaussian_fit(int dbn = 42, const char* folder = "20190131"){
+void scintillation_gaussian_fit(int dbn = 42, const char* folder = "20190131", const char* result = "result.csv"){
 	
 	// code for fitting a gaussian to the data of the txt file of the scintillation test
+	//Author: Anabel Romero, Xiaoning Wang
 	
 	ofstream file;
 	file.open (Form("%s/DBN_%d.txt",folder,dbn));
@@ -51,6 +52,19 @@ void scintillation_gaussian_fit(int dbn = 42, const char* folder = "20190131"){
 	h->Draw();
 	
 	cout << "DBN = " << dbn << " Scintillation (mV) = " << f->GetParameter(1) << endl;
+	ofstream outfile;
+	ifstream infile;
+	infile.open(result);
+	outfile.open(result, std::ios_base::app);
 
+	string str;
+	std::getline(infile,str);
+
+	if (str == ""){
+		outfile << "DBN" << "," << "Scintillation (mV)" << endl;
+	} 
+	outfile << dbn << "," << f->GetParameter(1) << endl;
+	outfile.close();
+	infile.close();
 
 }
