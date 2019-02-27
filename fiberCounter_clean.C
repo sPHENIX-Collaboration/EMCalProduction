@@ -28,7 +28,7 @@ void fiberCounter_clean(int dbn = 42, const char* end = "N", const char * input_
   gStyle->SetOptStat(0);
   gROOT->SetBatch(kTRUE);
   
-  TString picture = Form("%s/DBN_%d-%s.jpg",input_folder,dbn,end);
+  TString picture = Form("%s/DBN_%d-%s.jJPG",input_folder,dbn,end);
   TASImage image(picture);
  
   UInt_t yPixels = image.GetHeight();
