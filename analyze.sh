@@ -3,7 +3,7 @@ do
     for end in N W
     do
 	echo processing DBN_$dbn-$end
-	root -l -q -b 'fiberCounter2.C('$dbn',"'$end'")'
+	root -l -q -b 'fiberCounter.C('$dbn',"'$end'")'
     done
 done
 
