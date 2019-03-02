@@ -2,10 +2,6 @@
 //  getBetter.c
 //  
 //
-//  Created by Cher Wang on 2/21/19.
-//
-//
-
 #include "getBetter.h"
 #include <istream>
 #include <iostream>
