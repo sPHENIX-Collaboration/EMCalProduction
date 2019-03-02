@@ -522,7 +522,7 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
 
 
   
-  c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,end));;
+  c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,end));
 
 
   std::ifstream infile(output_csv);
