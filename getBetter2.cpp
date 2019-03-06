@@ -44,7 +44,7 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 
 	ofstream outfile;
 	outfile.open(outputfile);
-	outfile << "Difference" << "," << "r75(%)" << "," << title << endl;
+	outfile << "DBN" << "," << "# of Fibers" << "," << "Good End" << "," << "Abs Difference" << "," << "Fiber (%)" << "," << "50-75 (%)" << "," << "15-50 (%)" << "," << "10-15 (%)" << "," << "r75(%)" << "," << "RMS" << endl;
 
 	float perN, perW, diff;
 	for (int i = 0; i <= (int)(n/2); i++){
@@ -53,13 +53,12 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 		nt -> GetEntry(2 * i + 1);
 		perW = percent;
 		diff = std::abs(perN - perW);
-		outfile << diff << ",";
 		if (perW >= perN) {
 			nt -> GetEntry(2 * i + 1);
-			outfile << (double)(good + ok + bad) << "," << dbn << "," << "W" << "," << counts << "," << percent << "," << good << "," << ok << "," << bad << "," << (double)rms/100 << endl;
+			outfile << dbn << "," << counts << "," << "W" << "," << diff << "," << percent << "," << good << "," << ok << "," << bad << "," << (double)(good + ok + bad) << "," << (double)rms/100 << endl;
 		} else {
 			nt -> GetEntry(2 * i);
-			outfile << (double)(good + ok + bad) << "," << dbn << "," << "N" << "," << counts << "," << percent << "," << good << "," << ok << "," << bad << "," << (double)rms/100 << endl;
+			outfile << dbn << "," << counts << "," << "N" << "," << diff << "," << percent << "," << good << "," << ok << "," << bad << "," << (double)(good + ok + bad) << "," << (double)rms/100 << endl;
 		}
 	}	
 
