@@ -26,7 +26,7 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
     }
 		
 	TNtuple *nt= new TNtuple(input,input,"dbn:End:counts:percent:good:ok:bad:rms");
-	nt->ReadFile(Form("temp_%s",input),"dbn:End:counts:percent:good:ok:bad:rms",',');
+	nt->ReadFile(Form("%s/temp_%s", path, input),"dbn:End:counts:percent:good:ok:bad:rms",',');
 
 	inputfile.close();
 	file.close();
