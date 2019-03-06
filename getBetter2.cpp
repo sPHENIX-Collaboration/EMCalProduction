@@ -4,10 +4,10 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 	//Author: Xiaoning Wang, inspired by Anabel's Gaussian fit code
 	
 	ofstream file;
-	file.open(Form("temp_%s",input));
+	file.open(Form("%s/temp_%s", path, input));
 	
 	string line;	ifstream inputfile;
-	inputfile.open(input);
+	inputfile.open(Form("%s/%s", path, input));
 
  	std::string title;
 	getline(inputfile,title);
