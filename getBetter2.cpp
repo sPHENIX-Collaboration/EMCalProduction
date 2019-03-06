@@ -47,7 +47,7 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 	outfile << "DBN" << "," << "# of Fibers" << "," << "Good End" << "," << "Abs Difference" << "," << "Fiber (%)" << "," << "50-75 (%)" << "," << "15-50 (%)" << "," << "10-15 (%)" << "," << "r75(%)" << "," << "RMS" << endl;
 
 	float perN, perW, diff;
-	for (int i = 0; i <= (int)(n/2); i++){
+	for (int i = 0; i < (int)(n/2); i++){
 		nt -> GetEntry(2 * i);
 		perN = percent;
 		nt -> GetEntry(2 * i + 1);
