@@ -1,4 +1,4 @@
-void getBetter2(const char* input = "result.csv", const char* outputfile = "result_1end.csv"){
+void getBetter2(const char* path = "pictures", const char* input = "result.csv", const char* outputfile = "result_1end.csv"){
 	
 	// code for get the better end of a block
 	//Author: Xiaoning Wang, inspired by Anabel's Gaussian fit code
@@ -56,10 +56,10 @@ void getBetter2(const char* input = "result.csv", const char* outputfile = "resu
 		outfile << diff << ",";
 		if (perW >= perN) {
 			nt -> GetEntry(2 * i + 1);
-			outfile << dbn << "," << "W" << "," << counts << "," << percent << "," << good << "," << ok << "," << bad << "," << rms << endl;
+			outfile << dbn << "," << "W" << "," << counts << "," << percent << "," << good << "," << ok << "," << bad << "," << (double)rms/100 << endl;
 		} else {
 			nt -> GetEntry(2 * i);
-			outfile << dbn << "," << "N" << "," << counts << "," << percent << "," << good << "," << ok << "," << bad << "," << rms << endl;
+			outfile << dbn << "," << "N" << "," << counts << "," << percent << "," << good << "," << ok << "," << bad << "," << (double)rms/100 << endl;
 		}
 	}	
 
