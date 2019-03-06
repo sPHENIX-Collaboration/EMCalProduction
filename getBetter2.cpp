@@ -41,8 +41,6 @@ void getBetter2(const char* input = "result.csv", const char* outputfile = "resu
 	nt->SetBranchAddress("bad",&bad);
 	nt->SetBranchAddress("rms",&rms);
 
-	nt -> GetEntry(0);
-	cout << counts << endl;
 
 	ofstream outfile;
 	outfile.open(outputfile);
