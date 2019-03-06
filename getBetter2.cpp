@@ -44,7 +44,7 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 
 	ofstream outfile;
 	outfile.open(outputfile);
-	outfile << "Difference" << "," << title << endl;
+	outfile << "Difference" << "," << "r75(%)" << "," << title << endl;
 
 	float perN, perW, diff;
 	for (int i = 0; i <= (int)(n/2); i++){
@@ -56,10 +56,10 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 		outfile << diff << ",";
 		if (perW >= perN) {
 			nt -> GetEntry(2 * i + 1);
-			outfile << dbn << "," << "W" << "," << counts << "," << percent << "," << good << "," << ok << "," << bad << "," << (double)rms/100 << endl;
+			outfile << (double)(good + ok + bad) << "," << dbn << "," << "W" << "," << counts << "," << percent << "," << good << "," << ok << "," << bad << "," << (double)rms/100 << endl;
 		} else {
 			nt -> GetEntry(2 * i);
-			outfile << dbn << "," << "N" << "," << counts << "," << percent << "," << good << "," << ok << "," << bad << "," << (double)rms/100 << endl;
+			outfile << (double)(good + ok + bad) << "," << dbn << "," << "N" << "," << counts << "," << percent << "," << good << "," << ok << "," << bad << "," << (double)rms/100 << endl;
 		}
 	}	
 
