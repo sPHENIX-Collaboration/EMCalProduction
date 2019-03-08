@@ -1,16 +1,16 @@
-for folder in sector0_small
-cd ~/sPHENIX/LightTransmission
+for folder in 20190307
 do
-mkdir "$folder/Analysis"
-	for dbn in 5
+cd ~/sPHENIX/LightTransmission
+mkdir "pictures/$folder/Analysis"
+	for dbn in 114 117 185 149
 	do
     	for end in N W
     	do
 		echo processing DBN_$dbn-$end
-		root -l -q -b 'fiberCounter.C('$dbn',"'$end'","'pictures/cropped'","'$folder/Analysis'","'$folder/Analysis/$folder\_2ends.csv'")'
+		root -l -q -b 'fiberCounter.C('$dbn',"'$end'","'pictures/cropped'","'pictures/$folder/Analysis'","'pictures/$folder/Analysis/$folder\_2ends.csv'")'
     	done
 	done
-root -l -q -b 'getBetter2.cpp("'$folder/Analysis'", "'$folder\_2ends.csv'","'$folder/Analysis/$folder\_1end.csv'")'
+root -l -q -b 'getBetter2.cpp("'pictures/$folder/Analysis'", "'$folder\_2ends.csv'","'pictures/$folder/Analysis/$folder\_1end.csv'")'
 done
 
 
