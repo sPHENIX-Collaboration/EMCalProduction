@@ -1,9 +1,16 @@
-for dbn in 5 9 11 13 17 23 32 34 35 37 38 40 41 42 46 47 48 61 65 66 68 69 70 80 81 83 88 89 96 97 100 101 104 110 120 124 131 136 138 140 143 145 147 155 157 158 159
+for folder in sector0_small
+cd ~/sPHENIX/LightTransmission
 do
-    for end in N W
-    do
-	echo processing DBN_$dbn-$end
-	root -l -q -b 'fiberCounter.C('$dbn',"'$end'")'
-    done
+mkdir "$folder/Analysis"
+	for dbn in 5
+	do
+    	for end in N W
+    	do
+		echo processing DBN_$dbn-$end
+		root -l -q -b 'fiberCounter.C('$dbn',"'$end'","'pictures/cropped'","'$folder/Analysis'","'$folder/Analysis/$folder\_2ends.csv'")'
+    	done
+	done
+root -l -q -b 'getBetter2.cpp("'$folder/Analysis'", "'$folder\_2ends.csv'","'$folder/Analysis/$folder\_1end.csv'")'
 done
+
 
