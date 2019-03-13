@@ -1,6 +1,6 @@
 //sPHENIX EMCal fiber counting software
 //Authors: Yongsun Kim, Anabel Romero， Xiaoning Wang
-//Based on a macro by Olivier Couet that converts an image to a 2D histogram
+//Based on a macro by Olivier Couet that converts an image to a 2D histogram, thank you Tim Rinn for fixing the memory issues
 
 #include <vector>
 #include "commonUtility.h"
@@ -8,7 +8,18 @@
 #include <TEllipse.h>
 #include <fstream>
 
-void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder = "sector0_small", const char * output_folder = "sector0_small", const char * output_csv = "sector0_small/result.csv"){
+void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder = "pictures/cropped", const char * output_folder = "pictures/cropped", const char * output_csv = "pictures/cropped/result.csv"){
+
+
+  short **arrInten = new short*[10000];
+  short **arrFlag = new short*[10000];
+  //short **arrLocThr = new short*[xPixels+1];
+  for (int i = 0; i < 10000;i++)
+  {
+     arrInten[i] = new short[10000];
+     arrFlag[i] = new short[10000];
+      //arrLocThr[i] = new short[yPixels+1];
+  }
 
   //short seedThr = 100;
   //short bkgThr = 80;
@@ -28,22 +39,22 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   gStyle->SetOptStat(0);
   gROOT->SetBatch(kTRUE);
   
-  TString picture = Form("%s/DBN_%d-%s.JPG",input_folder,dbn,end);
-  TASImage image(picture);
+  TString pic = Form("%s/DBN_%d-%s.JPG",input_folder,dbn,end);
+  TASImage img(pic);
  
-  UInt_t yPixels = image.GetHeight();
-  UInt_t xPixels = image.GetWidth();
+  UInt_t yPixels = img.GetHeight();
+  UInt_t xPixels = img.GetWidth();
   cout << "xPixels = " << xPixels << endl;
   cout << "yPixels = " << yPixels << endl;
   
-  /*if ( (maxX<xPixels) || ( maxY <yPixels) )   {
+    /*if ( (maxX<xPixels) || ( maxY <yPixels) )   {
     cout <<"  (maxX<xPixels) || ( maxY <yPixels) ! " << endl;
     return;
   }*/
   
   TH1D* hNfib = new TH1D("hNfib",";Number of clusters;Entries",4000,0,4000);
 
-  UInt_t *argb   = image.GetArgbArray();
+  UInt_t *argb   = img.GetArgbArray();
   
   TH2D* hOriginal = new TH2D("hOriginal","Spectrum of Green Light Picture",xPixels,.5,xPixels+1,yPixels+1,.5,yPixels);
   TH2D* h = hOriginal;
@@ -68,7 +79,7 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   //TH2D* densityNpix   = (TH2D*)gFibers->Clone("densityNpix");
 
   //TH1D* hDefDist = new TH1D("hDefDist",";RMS xy normalized by sqrt(area);", 200,0,200);
-
+  //cout << "line 71" << endl;
 
   h1d->Sumw2();
   for (int row=0; row<xPixels; ++row) {
@@ -105,7 +116,7 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   //h->Draw("colz");
   //gPad->SetRightMargin(0.2);
      
-   
+  //cout << "line 108" << endl;
   TH2D* h3 = (TH2D*)h->Clone("h3");
   
   TH2D* h4 = (TH2D*)h->Clone("h4");  
@@ -124,17 +135,21 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   std::vector<float> vClstY;
   //  std::vector<short> inten;   
 
-  
+  //cout << "line 127" << endl;
   // Clean up backgrounds ;
-  short **arrInten = new short*[xPixels+1];
-  short **arrFlag = new short*[xPixels+1];
-  short **arrLocThr = new short*[xPixels+1];
-  for (int i = 0; i < xPixels+1;i++)
-      {
-      arrInten[i] = new short[yPixels+1];
-      arrFlag[i] = new short[yPixels+1];
-      arrLocThr[i] = new short[yPixels+1];
-      }
+
+  //short arrInten[xPixels+1][yPixels+1];
+  //short arrFlag[xPixels+1][yPixels+1];
+
+  //arrInten= new short*[xPixels+1];
+  //arrFlag = new short*[xPixels+1];
+  //short **arrLocThr = new short*[xPixels+1];
+  //for (int i = 0; i < xPixels+1;i++)
+  //    {
+  //   arrInten[i] = new short[yPixels+1];
+  //   arrFlag[i] = new short[yPixels+1];
+      //arrLocThr[i] = new short[yPixels+1];
+  //      }
 
   int kIn=1;  int kOut=-1;   int kUnde=0; 
   int nXbins = h3->GetNbinsX() ; 
@@ -142,7 +157,7 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
 
   for ( int ix0=1 ; ix0<=nXbins ; ix0++) {
     for ( int iy0=1 ; iy0<=nYbins ; iy0++) {
-      arrLocThr[ix0][iy0] = bkgThr;
+      //arrLocThr[ix0][iy0] = bkgThr;
 
       short val0 = h3->GetBinContent(ix0,iy0);
       arrInten[ix0][iy0] = val0;
@@ -154,7 +169,8 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
       
     }
   }
-  
+  //cout << "line 157" << endl;
+
   // Local threshold 
   for ( int ix0=1 ; ix0<=nXbins ; ix0 = ix0 + searchRange) {
     for ( int iy0=1 ; iy0<=nYbins ; iy0 = iy0 + searchRange) {
@@ -401,7 +417,7 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   cout << "Uncorrected count is " << nClst << endl;
 
   int aveEnergy = (henergy->GetMaximumBin())*(henergy->GetBinWidth(henergy->GetMaximumBin()));
-  //cout << "<Most occupied energy is " << aveEnergy;
+  cout << "<Most occupied energy is " << aveEnergy;
   int aveSize = (hsize->GetMaximumBin())*(hsize->GetBinWidth(hsize->GetMaximumBin()));
   cout << "Most occupied size is " << aveSize << endl;
   int ngood = 0,ndrop = 0, nbad = 0, nmid = 0, nCorrected = nClst;
@@ -526,11 +542,13 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
 
 
   std::ifstream infile(output_csv);
-  std::ofstream outfile;
-  outfile.open(output_csv, std::ios_base::app);
 
   std::string str;
   std::getline(infile, str);
+  infile.close();
+
+  std::ofstream outfile;
+  outfile.open(output_csv, std::ios_base::app);
 
   if (str == ""){
     outfile << "DBN" << "," << "End" << "," << "# of Fibers" << "," << "Fiber (%)" << "," << "50-75 (%)" << "," << "15-50 (%)" << "," << "10-15 (%)" << "," << "RMS" << endl;
