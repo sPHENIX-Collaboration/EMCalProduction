@@ -8,7 +8,7 @@
 #include <TEllipse.h>
 #include <fstream>
 
-void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder = "pictures/cropped", const char * output_folder = "pictures/cropped", const char * output_csv = "pictures/cropped/result.csv"){
+void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder = "test", const char * output_folder = "test", const char * output_csv = "test/result.csv"){
 
 
   short **arrInten = new short*[10000];
@@ -39,13 +39,19 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   gStyle->SetOptStat(0);
   gROOT->SetBatch(kTRUE);
   
-  TString pic = Form("%s/DBN_%d-%s.JPG",input_folder,dbn,end);
-  TASImage img(pic);
+  TFile* picfile = TFile::Open(Form("%s/DBN_%d-%s.root",input_folder,dbn,ed));
+  TASImage* img = (TASImage*)picfile -> Get("cropped");
  
-  UInt_t yPixels = img.GetHeight();
-  UInt_t xPixels = img.GetWidth();
+  UInt_t yPixels = img -> GetHeight();
+  UInt_t xPixels = img -> GetWidth();
   cout << "xPixels = " << xPixels << endl;
   cout << "yPixels = " << yPixels << endl;
+
+  int xc = (int)xPixels/2;
+  int yc = (int)yPixels/2;
+
+  cout << "xc: " << xc << "yc: " << yc << endl;
+
   
     /*if ( (maxX<xPixels) || ( maxY <yPixels) )   {
     cout <<"  (maxX<xPixels) || ( maxY <yPixels) ! " << endl;
@@ -54,9 +60,9 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   
   TH1D* hNfib = new TH1D("hNfib",";Number of clusters;Entries",4000,0,4000);
 
-  UInt_t *argb   = img.GetArgbArray();
+  UInt_t* argb   = img -> GetArgbArray();
   
-  TH2D* hOriginal = new TH2D("hOriginal","Spectrum of Green Light Picture",xPixels,.5,xPixels+1,yPixels+1,.5,yPixels);
+  TH2D* hOriginal = new TH2D("hOriginal","Spectrum of Green Light Picture",xPixels+1,.5,xPixels,yPixels+1,.5,yPixels);
   TH2D* h = hOriginal;
 
   TH1D* h1d = new TH1D("h1d","Light Intensity of Pixels;Intensity of Pixels;Counts",256,0,256);
@@ -82,11 +88,11 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   //cout << "line 71" << endl;
 
   h1d->Sumw2();
-  for (int row=0; row<xPixels; ++row) {
-    for (int col=0; col<yPixels; ++col) {
-      int index = col*xPixels+row;
-      short grey = argb[index]&0xff ;
-      h->SetBinContent(row+1,yPixels-col,grey);
+  for (int col = 0; col < xPixels; ++col) {
+    for (int row = 0; row < yPixels; ++row) {
+      int index = row * xPixels + col;
+      short grey = argb[index]&0xff;
+      h->SetBinContent(col + 1, yPixels - row, grey);
       h1d->Fill(grey);
     }
   }
@@ -416,12 +422,20 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
 //
   cout << "Uncorrected count is " << nClst << endl;
 
-  int aveEnergy = (henergy->GetMaximumBin())*(henergy->GetBinWidth(henergy->GetMaximumBin()));
-  cout << "<Most occupied energy is " << aveEnergy;
-  int aveSize = (hsize->GetMaximumBin())*(hsize->GetBinWidth(hsize->GetMaximumBin()));
+  TF1 *fe = new TF1("energyFit","gaus", 5000, 20000);
+  TF1* fs = new TF1("sizeFit", "gaus", 50, 150);
+
+  henergy -> Fit(fe, "RQ");
+  hsize -> Fit(fs, "RQ");
+
+  int aveEnergy = (int)fe -> GetParameter(1);
+  cout << "Most occupied energy is " << aveEnergy << endl;
+  int aveSize = (int)fs -> GetParameter(1);
   cout << "Most occupied size is " << aveSize << endl;
-  int ngood = 0,ndrop = 0, nbad = 0, nmid = 0, nCorrected = nClst;
-  for ( int ci = 0 ; ci< vClstE.size() ; ci++) {
+  int ngood = 0, ndrop = 0, nbad = 0, nmid = 0, nCorrected = nClst;
+  int nClst1 = 0, nClst2 = 0, nClst3 = 0, nClst4 = 0;
+  cout << "vClst size: " << vClstE.size() << endl;
+  for ( int ci = 0 ; ci < vClstE.size() ; ci++) {
 	  double energy = (double) vClstE[ci] /aveEnergy;
     double thisSize = (double) vClstS[ci] /aveSize;
     int multi = 1;
@@ -437,7 +451,25 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
       nCorrected = nCorrected-1; 
       continue;
     }
-    nCorrected = nCorrected + multi - 1;
+    nCorrected = nCorrected + multi - 1; 
+    //cout << multi << endl; 
+    if (vClstX[ci] <= xc && vClstY[ci] <= yc){ 
+    	nClst1 = nClst1 + multi;
+    	//cout << ci << ": 1; " << nClst1 << endl;
+    }
+    if (vClstX[ci] > xc && vClstY[ci] <= yc){ 
+    	nClst2 = nClst2 + multi;
+    	//cout << ci << ": 2; " << nClst2 << endl;
+	}
+    if (vClstX[ci] <= xc && vClstY[ci] > yc){ 
+    	nClst3 = nClst3 + multi;
+    	//cout << ci << ": 3; " << nClst3 << endl;
+    }
+	if (vClstX[ci] > xc && vClstY[ci] > yc){ 
+		nClst4 = nClst4 + multi;
+    	//cout << ci << ": 4; " << nClst4 << endl;
+	}
+
     if (energy < badBar) {nbad++;}
     if ((energy >= badBar) && (energy < midBar)) {nmid++;}
     if ((energy >= midBar) && (energy < goodBar)) {ngood++;}
@@ -451,6 +483,12 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   double R = henergyNorm->GetRMS()/henergyNorm->GetMean();
   double rbad = (double)(nbad)/nCorrected;
   double rmid = (double)(nmid)/nCorrected;
+
+  double n1 = (double)nClst1/667;
+  double n2 = (double)nClst2/667;
+  double n3 = (double)nClst3/667;
+  double n4 = (double)nClst4/667;
+
   
   cout << endl<< "DBN = " << dbn << endl;
   cout << "Number of fibers = " << nCorrected << endl;
@@ -459,7 +497,12 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   cout << "r below (15%) (%) = " << rbad*100 << endl;
   cout << "r (15%) - (50%) (%) = " << rmid*100 << endl;
   cout << "r (50%) - (75%) (%) = " << rgood*100 << endl;
-  cout << "R (%) = " << R*100 <<endl<<endl;
+  cout << "R (%) = " << R*100 << endl << endl;
+
+  cout << "Left Top Quadrant has " << n1 *100 << "(%)" << endl;
+  cout << "Right Top Quadrant has " << n2 *100 << "(%)" << endl;
+  cout << "Left Bottom Quadrant has " << n3 *100 << "(%)" << endl;
+  cout << "Right Bottom Quadrant has " << n4 *100 << "(%)" << endl;
 
   
   /*hNfib->Fill(nCorrected);
@@ -535,10 +578,8 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   drawText(Form("rbad (%%) = %1.3f",rbad*100),0.45,0.3);
   drawText(Form("R (%%)= %1.3f",R*100),0.45,0.2);
 
-
-
   
-  c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,end));
+  c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,ed));
 
 
   std::ifstream infile(output_csv);
@@ -551,9 +592,9 @@ void fiberCounter(int dbn = 42, const char* end = "N", const char * input_folder
   outfile.open(output_csv, std::ios_base::app);
 
   if (str == ""){
-    outfile << "DBN" << "," << "End" << "," << "# of Fibers" << "," << "Fiber (%)" << "," << "50-75 (%)" << "," << "15-50 (%)" << "," << "10-15 (%)" << "," << "RMS" << endl;
+    outfile << "DBN" << "," << "End" << "," << "# of Fibers" << "," << "Fiber (%)" << "," << "50-75 (%)" << "," << "15-50 (%)" << "," << "10-15 (%)" << "," << "RMS" << "," << "Tower 1 (%)" << "," << "Tower 2(%)" << "," << "Tower 3(%)" << "," << "Tower 4(%)" << endl;
   }
-  outfile << dbn << "," << end << "," << nCorrected << "," << f*100 << "," << rgood*100 << "," << rmid*100 << "," << rbad*100 << "," << R*100 << endl;
+  outfile << dbn << "," << ed << "," << nCorrected << "," << f*100 << "," << rgood*100 << "," << rmid*100 << "," << rbad*100 << "," << R*100 << "," << n1*100 << "," << n2*100 << "," << n3*100 << "," << n4*100 << endl;
   outfile.close();
 
 

@@ -1,4 +1,4 @@
-void crop(const char* path = "IgnoreMe/test", const char* ed = "N", int dbn = 42, const char * output = "IgnoreMe/test"){
+void crop(int dbn = 42, const char* ed = "N", const char* path = "IgnoreMe/test", const char * outputRoot = "IgnoreMe/test", const char * output = "IgnoreMe/test"){
 	
 	// crop the picture
 	//Author: Xiaoning Wang
@@ -63,11 +63,11 @@ void crop(const char* path = "IgnoreMe/test", const char* ed = "N", int dbn = 42
   	int limy = hy -> FindFirstBinAbove(0.5 * maxy) - 1;
   	int widthy = hy -> FindLastBinAbove(0.5 * maxy) - limy;
 
-  	TFile* outfile = new TFile(Form("%s/DBN_%d-%s.root",output,dbn,ed),"RECREATE");
+  	TFile* outfile = new TFile(Form("%s/DBN_%d-%s.root",outputRoot,dbn,ed),"RECREATE");
   	img -> SetName("original");
   	img -> Write();
 
-  	img -> Crop(limx* bins1 + startx - tol, limy * bins1 + starty - tol, widthx * bins1 + 2 * tol, widthy * bins1 + 2 * tol);
+  	img -> Crop(limx* bins1 + startx - 2* tol, limy * bins1 + starty - 2* tol, widthx * bins1 + 4 * tol, widthy * bins1 + 4 * tol);
 
 
 
@@ -80,11 +80,11 @@ void crop(const char* path = "IgnoreMe/test", const char* ed = "N", int dbn = 42
 
 
   	//TH2D* fg = (TH2D*)g -> Clone("fg");
-  	TCanvas* c2 = new TCanvas("c2","", widthx * bins1 + 2 * tol, widthy * bins1 + 4 * tol);
-  	c2 -> SetMargin(0,0,0,0);
-	c2 -> cd();
-	img -> Draw();
-	c2 -> SaveAs(Form("%s/DBN_%d-%s.png",output,dbn,ed));
+  	TCanvas* c2 = new TCanvas("c2","", widthx * bins1 + 10 * tol, widthy * bins1 + 10 * tol);
+    c2->SetMargin(0,0,0,0);
+	 c2 -> cd();
+	 img -> Draw();
+	 c2 -> SaveAs(Form("%s/DBN_%d-%s.png",output,dbn,ed));
 
   	TCanvas* c0 = new TCanvas("c0","",700,700);
   	c0 -> Divide(2,2);
