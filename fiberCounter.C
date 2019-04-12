@@ -499,10 +499,10 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
   cout << "r (50%) - (75%) (%) = " << rgood*100 << endl;
   cout << "R (%) = " << R*100 << endl << endl;
 
-  cout << "Left Top Quadrant has " << n1 *100 << "(%)" << endl;
-  cout << "Right Top Quadrant has " << n2 *100 << "(%)" << endl;
-  cout << "Left Bottom Quadrant has " << n3 *100 << "(%)" << endl;
-  cout << "Right Bottom Quadrant has " << n4 *100 << "(%)" << endl;
+  cout << "Left Bottom Quadrant has " << n1 *100 << "(%)" << endl;
+  cout << "Right Bottom Quadrant has " << n2 *100 << "(%)" << endl;
+  cout << "Left Top Quadrant has " << n3 *100 << "(%)" << endl;
+  cout << "Right Top Quadrant has " << n4 *100 << "(%)" << endl;
 
   
   /*hNfib->Fill(nCorrected);
@@ -522,6 +522,30 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
     el3->SetFillStyle(0);
     el3->Draw();
   }
+
+  //TEllipse *el1 = new TEllipse( xc/2, yc/2, 30);
+  //el1->SetLineColor(2);
+  //el1->SetLineWidth(5);
+  //el1->SetFillStyle(0);
+  //el1->Draw();
+
+  //TEllipse *el2 = new TEllipse( xc*3/2, yc/2, 30);
+  //el2->SetLineColor(3);
+  //el2->SetLineWidth(5);
+  //el2->SetFillStyle(0);
+  //el2->Draw();
+
+  //TEllipse *el3 = new TEllipse( xc/2, yc*3/2, 30);
+  //el3->SetLineColor(5);
+  //el3->SetLineWidth(5);
+  //el3->SetFillStyle(0);
+  //el3->Draw();
+
+  //TEllipse *el4 = new TEllipse( xc*3/2, yc*3/2, 30);
+  //el4->SetLineColor(7);
+  //el4->SetLineWidth(5);
+  //el4->SetFillStyle(0);
+  //el4->Draw();
 
 
   handsomeTH1(henergy,1);
