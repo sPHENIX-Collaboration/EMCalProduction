@@ -50,7 +50,7 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
   int xc = (int)xPixels/2;
   int yc = (int)yPixels/2;
 
-  cout << "xc: " << xc << "yc: " << yc << endl;
+  cout << "xc: " << xc << " " << "yc: " << yc << endl;
 
   
     /*if ( (maxX<xPixels) || ( maxY <yPixels) )   {
@@ -432,23 +432,25 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
   cout << "Most occupied energy is " << aveEnergy << endl;
   int aveSize = (int)fs -> GetParameter(1);
   cout << "Most occupied size is " << aveSize << endl;
-  int ngood = 0, ndrop = 0, nbad = 0, nmid = 0, nCorrected = nClst;
+  int nbundle = 0, ngood = 0, ndrop = 0, nbad = 0, nmid = 0, nCorrected = nClst;
+
   int nClst1 = 0, nClst2 = 0, nClst3 = 0, nClst4 = 0;
-  cout << "vClst size: " << vClstE.size() << endl;
   for ( int ci = 0 ; ci < vClstE.size() ; ci++) {
 	  double energy = (double) vClstE[ci] /aveEnergy;
     double thisSize = (double) vClstS[ci] /aveSize;
     int multi = 1;
     while (thisSize > (multi+0.6)){
-      cout << "found bundle" << endl;
       multi++;
+    }
+    if (multi > 1) {
+      //cout << "Found a bundle of " << multi << " fibers." << endl;
+      nbundle =  nbundle + 1;
     }
     energy = (double)energy/multi;
     thisSize = (double)thisSize/multi;
     if ((energy < dropBar) || (thisSize < dropBar)) {
       ndrop++; 
-      cout << "found drop" << endl;
-      nCorrected = nCorrected-1; 
+      nCorrected = nCorrected - 1; 
       continue;
     }
     nCorrected = nCorrected + multi - 1; 
@@ -477,7 +479,56 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
     hsizeNorm -> Fill(thisSize, multi); 
     seCor -> Fill(thisSize, energy, multi);
   }
-  
+  cout << "Found " << nbundle << " bundles of fibers" << endl;
+  cout << "Dropped " << ndrop << " fibers of small area or intensity" << endl;
+
+  if (nCorrected >= 2615) {
+    cout << "Passed the overall bar" << endl;
+    bool redo = false;
+    if ((nClst1 > 667) || (nClst2 > 667) || (nClst3 > 667) || (nClst4 > 667)){
+      if ((nClst1+nClst2)/2 - (nClst3+nClst4)/2 > 26.68){
+        cout << "Bottom has many more fibers, shifting down half a row." << endl;
+        yc = yc - (yPixels - 60)/100; 
+        redo = true;
+      }   else if ((nClst3+nClst4)/2 - (nClst1+nClst2)/2 > 26.68){
+        cout << "Top has many more fibers, shifting up half a row." << endl;
+        yc = yc + (yPixels - 60)/100; 
+        redo = true;
+      }
+      if (redo) {
+        nClst1 = 0, nClst2 = 0, nClst3 = 0, nClst4 = 0;
+        for ( int ci = 0 ; ci < vClstE.size() ; ci++) {
+          double energy = (double) vClstE[ci] /aveEnergy;
+          double thisSize = (double) vClstS[ci] /aveSize;
+          int multi = 1;
+          while (thisSize > (multi+0.6)){
+            multi++;
+          }
+          thisSize = (double)thisSize/multi;
+          if ((energy < dropBar) || (thisSize < dropBar)) {
+            continue;
+          }
+          if (vClstX[ci] <= xc && vClstY[ci] <= yc){ 
+            nClst1 = nClst1 + multi;
+          //cout << ci << ": 1; " << nClst1 << endl;
+          }
+          if (vClstX[ci] > xc && vClstY[ci] <= yc){ 
+            nClst2 = nClst2 + multi;
+          //cout << ci << ": 2; " << nClst2 << endl;
+          }
+          if (vClstX[ci] <= xc && vClstY[ci] > yc){ 
+            nClst3 = nClst3 + multi;
+          //cout << ci << ": 3; " << nClst3 << endl;
+          }
+          if (vClstX[ci] > xc && vClstY[ci] > yc){ 
+            nClst4 = nClst4 + multi;
+          //cout << ci << ": 4; " << nClst4 << endl;
+          }
+        }
+      }
+    }
+  }
+
   double f = nCorrected/2668.;
   double rgood = (double)(ngood)/nCorrected;
   double R = henergyNorm->GetRMS()/henergyNorm->GetMean();
@@ -489,20 +540,30 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
   double n3 = (double)nClst3/667;
   double n4 = (double)nClst4/667;
 
+  TString ind = "N";
+  if (ed == ind){
+    cout << "Flip horizontal for narrow end" << endl;
+    double temp = n1;
+    n1 = n2;
+    n2 = temp;
+    temp = n3;
+    n3 = n4;
+    n4 = temp;
+  }
   
   cout << endl<< "DBN = " << dbn << endl;
   cout << "Number of fibers = " << nCorrected << endl;
-  cout << "#Fibers/#Holes (%)= " << f*100 << endl;
-  cout << "r below (75%) (%) = " << (rgood+rmid+rbad)*100 <<endl;
-  cout << "r below (15%) (%) = " << rbad*100 << endl;
-  cout << "r (15%) - (50%) (%) = " << rmid*100 << endl;
-  cout << "r (50%) - (75%) (%) = " << rgood*100 << endl;
-  cout << "R (%) = " << R*100 << endl << endl;
+  cout << "#Fibers/#Holes (%)= " << f * 100 << endl;
+  cout << "r below (75%) (%) = " << (rgood + rmid + rbad) * 100 <<endl;
+  cout << "r below (15%) (%) = " << rbad * 100 << endl;
+  cout << "r (15%) - (50%) (%) = " << rmid * 100 << endl;
+  cout << "r (50%) - (75%) (%) = " << rgood * 100 << endl;
+  cout << "R (%) = " << R * 100 << endl << endl;
 
-  cout << "Left Bottom Quadrant has " << n1 *100 << "(%)" << endl;
-  cout << "Right Bottom Quadrant has " << n2 *100 << "(%)" << endl;
-  cout << "Left Top Quadrant has " << n3 *100 << "(%)" << endl;
-  cout << "Right Top Quadrant has " << n4 *100 << "(%)" << endl;
+  cout << "Bottom Left Quadrant of Wide End has " << n1 * 100 << "(%)" << endl;
+  cout << "Bottom Right Quadrant of Wide End has " << n2 * 100 << "(%)" << endl;
+  cout << "Top Left Quadrant of Wide End has " << n3 * 100 << "(%)" << endl;
+  cout << "Top Right Quadrant of Wide End has " << n4 * 100 << "(%)" << endl;
 
   
   /*hNfib->Fill(nCorrected);
@@ -558,10 +619,10 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
   //if (end=="N") drawText("Narrow end",0.45,0.7);
   //if (end=="W") drawText("Wide end",0.45,0.7);
   drawText(Form("# Fibers = %d",nCorrected),0.45,0.6);
-  drawText(Form("Fibers (%%) = %1.3f",f*100),0.45,0.5);
-  drawText(Form("rgood (%%) = %1.3f",(1-rgood)*100),0.45,0.4);
-  drawText(Form("rbad (%%) = %1.3f",rbad*100),0.45,0.3);
-  drawText(Form("R (%%)= %1.3f",R*100),0.45,0.2);
+  drawText(Form("Fibers (%%) = %1.3f",f * 100),0.45,0.5);
+  drawText(Form("rgood (%%) = %1.3f",(1 - rgood) * 100),0.45,0.4);
+  drawText(Form("rbad (%%) = %1.3f",rbad * 100),0.45,0.3);
+  drawText(Form("R (%%)= %1.3f",R * 100),0.45,0.2);
 
 
   //This section is used to set range for viewing only the block surface
@@ -575,7 +636,7 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
   c0->cd(4);
   cleverRangeZ(densityInten);
   densityInten->SetTitle("2D Light Intensity Distribution");
-  densityInten->Scale(1/densityInten->GetMaximum());
+  densityInten->Scale(1/densityInten -> GetMaximum());
   densityInten->SetMaximum(1.0);
   //densityInten->SetTitle("Light intensity/Number of Fibers;X;Y");
   densityInten->Draw("colz");
