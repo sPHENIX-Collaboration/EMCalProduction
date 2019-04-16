@@ -1,8 +1,8 @@
-for folder in 20190409
+for folder in 20190410
 do
 cd ~/sPHENIX/LightTransmission
 mkdir "pictures/$folder/Analysis"
-	for dbn in 166 14 86 118 355
+	for dbn in 19 90 109 128 141 232 572
 	do
     	for end in N W
     	do
@@ -12,5 +12,6 @@ mkdir "pictures/$folder/Analysis"
     	done
 	done
 root -l -q -b 'getBetter2.cpp("'pictures/$folder/Analysis'", "'$folder\_2ends.csv'","'pictures/$folder/Analysis/$folder\_1end.csv'")'
+cp 'analyze.sh' "pictures/$folder/Analysis"
 done
 

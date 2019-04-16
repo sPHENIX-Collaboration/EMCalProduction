@@ -1,7 +1,9 @@
-for folder in 20190218
+for folder in 20190412
 do
-    for dbn in 15 16 27 30 85 92 97 99 106 108 112 116 119 125 130 135 153 161 167 175
+	cd ~/sPHENIX/ScintillationTest
+    for dbn in 14 109 232 572
     do
-	root -l -q -b 'scintillation_gaussian_fit.C('$dbn',"'$folder'")'
+	root -l -q -b 'scintillation_gaussian_fit.C('$dbn',"'$folder'","'$folder/$folder\_result.csv'")'
     done
+cp 'do_scintillation_gaussian_fit.sh' "$folder/Analysis"
 done

@@ -488,13 +488,25 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
     if ((nClst1 > 667) || (nClst2 > 667) || (nClst3 > 667) || (nClst4 > 667)){
       if ((nClst1+nClst2)/2 - (nClst3+nClst4)/2 > 26.68){
         cout << "Bottom has many more fibers, shifting down half a row." << endl;
-        yc = yc - (yPixels - 60)/100; 
+        yc = yc - (yPixels - 40)/100; 
         redo = true;
-      }   else if ((nClst3+nClst4)/2 - (nClst1+nClst2)/2 > 26.68){
+      } 
+      else if ((nClst3+nClst4)/2 - (nClst1+nClst2)/2 > 26.68){
         cout << "Top has many more fibers, shifting up half a row." << endl;
-        yc = yc + (yPixels - 60)/100; 
+        yc = yc + (yPixels - 40)/100; 
         redo = true;
-      }
+      } 
+      if ((nClst1+nClst3)/2 - (nClst2+nClst4)/2 > 26.68){
+        cout << "Left has many more fibers, shifting left half a row." << endl;
+        xc = xc - (xPixels - 40)/100; 
+        redo = true;
+      } 
+      else if ((nClst2+nClst4)/2 - (nClst1+nClst3)/2 > 26.68){
+        cout << "Right has many more fibers, shifting right half a row." << endl;
+        xc = xc + (xPixels - 40)/100; 
+        redo = true;
+      } 
+
       if (redo) {
         nClst1 = 0, nClst2 = 0, nClst3 = 0, nClst4 = 0;
         for ( int ci = 0 ; ci < vClstE.size() ; ci++) {
