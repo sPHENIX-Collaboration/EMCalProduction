@@ -1,5 +1,6 @@
 for folder in 20190410
 do
+. '/usr/local/root-6.04.02/bin/thisroot.sh'	
 cd ~/sPHENIX/LightTransmission
 mkdir "pictures/$folder/Analysis"
 	for dbn in 19 90 109 128 141 232 572
