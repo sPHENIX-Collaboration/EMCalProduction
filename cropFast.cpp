@@ -6,7 +6,7 @@
 #include <TEllipse.h>
 #include <fstream>
 
-void crop(int dbn = 42, const char* ed = "N", const char* path = "IgnoreMe/test", const char * outputRoot = "IgnoreMe/test", const char * output = "IgnoreMe/test"){
+void cropFast(int dbn = 42, const char* ed = "N", const char* path = "IgnoreMe/test", const char * outputFile = "IgnoreMe/test/limits.csv"){
 	
 	// crop the picture
 	//Author: Xiaoning Wang
@@ -103,82 +103,85 @@ void crop(int dbn = 42, const char* ed = "N", const char* path = "IgnoreMe/test"
   int widthy = fy -> FindLastBinAbove(ratio2 * maxy2) - limy2;
 
 
-  TFile* outfile = new TFile(Form("%s/DBN_%d-%s.root", outputRoot, dbn, ed),"RECREATE");
-  img -> SetName("original");
-  img -> Write();
+  //TFile* outfile = new TFile(Form("%s/DBN_%d-%s.root", outputRoot, dbn, ed),"RECREATE");
+  //img -> SetName("original");
+  //img -> Write();
 
-  img -> Crop(startx + (limx - 2.5) * bins1 + limx2, starty + (limy - 2.5) * bins1 + limy2, widthx + 2 * bins1, widthy + 2 * bins1);
-  cout << "X range: " << startx + (limx - 2.5) * bins1 + limx2 << " pixels to " << startx + (limx - 2.5) * bins1 + limx2 + widthx + 2 * bins1 << " pixels." << endl;
-  cout << "Y range: " << starty + (limy - 2.5) * bins1 + limy2 << " pixels to " << starty + (limy - 2.5) * bins1 + limy2 + widthy + 2 * bins1 << " pixels." << endl;
+  //img -> Crop(startx + (limx - 2.5) * bins1 + limx2, starty + (limy - 2.5) * bins1 + limy2, widthx + 2 * bins1, widthy + 2 * bins1);
 
+  std::ifstream infile(outputFile);
+  std::string str;
+  std::getline(infile, str);
+  infile.close();
 
+  std::ofstream outfile;
+  outfile.open(outputFile, std::ios_base::app);
 
-  	//We select the outermost tile with intensity within first 20% of intensity, and 
-  	//for (int x = 0; x < interv/bins1; ++x){
-  	//	for (int y = 0; x < interv/bins1; ++y){
-  	//		
-  	//	}
-  	//}
+  if (str == ""){
+    outfile << "DBN" << "," << "End" << "," << "X Start" << "," << "X end" << "," << "Y start" << "," << "Y end" << endl;
+  }
+
+  outfile << dbn << "," << ed << "," << startx + (limx - 2.5) * bins1 + limx2 << "," << startx + (limx - 2.5) * bins1 + limx2 + widthx + 2 * bins1 << "," << starty + (limy - 2.5) * bins1 + limy2 << "," << starty + (limy - 2.5) * bins1 + limy2 + widthy + 2 * bins1 << endl;
 
 
   	//TH2D* fg = (TH2D*)g -> Clone("fg");
-  TCanvas* c2 = new TCanvas("c2","", widthx + 5 * bins1, widthy + 5 * bins1);
-  c2 -> SetMargin(0,0,0,0);
-  c2 -> cd();
-  img -> Draw();
-  c2 -> SaveAs(Form("%s/DBN_%d-%s.png", output, dbn, ed));
+  //TCanvas* c2 = new TCanvas("c2","", widthx + 5 * bins1, widthy + 5 * bins1);
+  //c2 -> SetMargin(0,0,0,0);
+  //c2 -> cd();
+  //img -> Draw();
+  //c2 -> SaveAs(Form("%s/DBN_%d-%s.png", output, dbn, ed));
 
-  TCanvas* c0 = new TCanvas("c0","",700,700);
-  c0 -> Divide(2,2);
-  c0 -> cd(1);
-  gStyle -> SetPalette(55);
-  gStyle -> SetOptStat(0);
+  //TCanvas* c0 = new TCanvas("c0","",700,700);
+  //c0 -> Divide(2,2);
+  //c0 -> cd(1);
+  //gStyle -> SetPalette(55);
+  //gStyle -> SetOptStat(0);
   //g -> GetXaxis()->SetRange(startx + limx * bins1, startx + edx * bins1);
   //g -> GetYaxis()->SetRange(starty + limy * bins1, starty + edy * bins1);
   //g->Draw("colz");
-  xg -> SetAxisRange(0, 256 * bins1 * sqrt(bins1), "z");
-  xg -> GetXaxis()->SetRangeUser((limx -1.5) * bins1 + startx, (edx + 1.5) * bins1 + startx);
-  xg -> GetYaxis()->SetRangeUser((limy -1.5) * bins1 + starty, (edy + 1.5) * bins1 + starty);
-  xg -> Draw("colz");
+  //xg -> SetAxisRange(0, 256 * bins1 * sqrt(bins1), "z");
+  //xg -> GetXaxis()->SetRangeUser((limx -1.5) * bins1 + startx, (edx + 1.5) * bins1 + startx);
+  //xg -> GetYaxis()->SetRangeUser((limy -1.5) * bins1 + starty, (edy + 1.5) * bins1 + starty);
+  //xg -> Draw("colz");
 
-  c0 -> cd(2);
+  //c0 -> cd(2);
   //yg -> GetXaxis()->SetRange(limy + 1, edy);
   //yg -> GetYaxis()->SetRange(limx + 1, edx);
   //yg -> SetAxisRange(0, 256 *  bins1, "z");
   //yg -> Draw("colz");
-  g -> SetAxisRange(0, 256, "z");
-  g -> GetXaxis()->SetRangeUser((limx -1.5) * bins1 + startx, (edx + 1.5) * bins1 + startx);
-  g -> GetYaxis()->SetRangeUser((limy -1.5) * bins1 + starty, (edy + 1.5) * bins1 + starty);
-  g -> Draw("colz");
+  //g -> SetAxisRange(0, 256, "z");
+  //g -> GetXaxis()->SetRangeUser((limx -1.5) * bins1 + startx, (edx + 1.5) * bins1 + startx);
+  //g -> GetYaxis()->SetRangeUser((limy -1.5) * bins1 + starty, (edy + 1.5) * bins1 + starty);
+  //g -> Draw("colz");
 
-  c0 -> cd(3);
+  //c0 -> cd(3);
   //hx -> GetXaxis() -> SetRangeUser((limx - 1.5) * bins1 + startx, (edx + 1.5) * bins1 + startx);
-  fx -> Draw();
+  //fx -> Draw();
 
-  c0 -> cd(4);
+  //c0 -> cd(4);
   //hy -> GetXaxis() -> SetRangeUser((limy - 1.5) * bins1 + starty, (edy + 1.5) * bins1 + starty);
-  fy -> Draw();
+  //fy -> Draw();
 
-  c0 -> SetName("analysis");
-  c0 -> Write();
+  //c0 -> SetName("analysis");
+  //c0 -> Write();
 
   	//c0 -> cd(2);
   	//gPad->SetLogy();	
   	//h -> Draw();
 
-	img -> SetName("cropped");
-	img -> Write();
+	//img -> SetName("cropped");
+	//img -> Write();
 
-	TCanvas* c1 = new TCanvas("c1","",1400,700);
-	c1 -> Divide(2,1);
-	c1 -> cd(1);
-	TASImage* original = (TASImage*)outfile -> Get("original");
-	original -> Draw();
+	//TCanvas* c1 = new TCanvas("c1","",1400,700);
+	//c1 -> Divide(2,1);
+	//c1 -> cd(1);
+	//TASImage* original = (TASImage*)outfile -> Get("original");
+	//original -> Draw();
 
-	TASImage* cropped = (TASImage*)outfile -> Get("cropped");
-	c1 -> cd(2);
-	cropped -> Draw();
+	//TASImage* cropped = (TASImage*)outfile -> Get("cropped");
+	//c1 -> cd(2);
+	//cropped -> Draw();
 
-	outfile -> Close();
+	outfile.close();
 }
   
