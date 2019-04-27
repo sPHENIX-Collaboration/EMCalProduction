@@ -18,7 +18,7 @@ void crop(int dbn = 42, const char* ed = "N", const char* path = "IgnoreMe/test"
   int interv = 2500;
   int startx = 1500;
 	int starty = 1000; 
-  double ratio1 = 0.6;  
+  double ratio1 = 0.5;  
   double ratio2 = 0.1;
 
   TH2D *g = new TH2D("Intensity","Intensity", interv, startx, startx + interv, interv, starty, starty + interv);
