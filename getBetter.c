@@ -2,6 +2,10 @@
 //  getBetter.c
 //  
 //
+//  Created by Cher Wang on 2/21/19.
+//
+//
+
 #include "getBetter.h"
 #include <istream>
 #include <iostream>
@@ -11,10 +15,10 @@
 #include <fstream>
 
 using namespace std;
-void getBetter(const char* input_folder = "pictures/cropped", const char* input_file = "result.csv", const char* output_folder = "pictures/cropped", const char* output_file = "result_batch.csv"){
-    std::ifstream file(Form("%s/%s",input_folder, input_file));
+void getBetter(const char* input_file = "result.csv", const char* output_file = "result_batch.csv"){
+    std::ifstream file(input_file);
     std::string str;
-    std::ofstream outfile(Form("%s/%s", output_folder, output_file));
+    std::ofstream outfile(output_file);
     std::getline(file, str);
     outfile << "Difference Abs" << "," << str << endl;
     int column = str.find("Fiber (%)");
@@ -39,7 +43,7 @@ void getBetter(const char* input_folder = "pictures/cropped", const char* input_
         }
         int nlen = strN.find(',', start + 1) - start;
         subN = strN.substr(start + 1, nlen-1);
-        double percentN = stod(subN);
+        double percentN = std::stod(subN);
 
         
         std::getline(file, strW);
@@ -49,13 +53,15 @@ void getBetter(const char* input_folder = "pictures/cropped", const char* input_
         }
         nlen = strW.find(",", start + 1) - start;
         subW = strW.substr(start + 1, nlen-1);
-        double percentW = stod(subW);
+        double percentW = std::stod(subW);
         double diff = abs(percentW - percentN);
         if (percentW >= percentN){
-            outfile << diff << "," << strW;
+            outfile << diff << "," << strW << endl;
         }
         else {
-            outfile << diff << "," << strN;
+            outfile << diff << "," << strN << endl;
         }
     }
+    file.close();
+    outfile.close();
 }
