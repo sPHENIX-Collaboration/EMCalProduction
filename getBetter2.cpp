@@ -1,4 +1,4 @@
-void getBetter2(const char* path = "pictures", const char* input = "result.csv", const char* outputfile = "result_1end.csv"){
+void getBetter2(const char* path = "pictures", const char* input = "result.csv", const char* outputfile = "result_1end.csv", const char* date = "20190426"){
 	
 	// code for get the better end of a block
 	//Author: Xiaoning Wang, inspired by Anabel's Gaussian fit code
@@ -48,7 +48,7 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 
 	ofstream outfile;
 	outfile.open(outputfile);
-	outfile << "DBN" << "," << "# of Fibers" << "," << "Good End" << "," << "Abs Difference" << "," << "Fiber (%)" << "," << "10-15 (%)" << "," << "15-50 (%)" << "," << "50-75 (%)" << "," << "r75(%)" << "," << "RMS" << "," << "Tower 1 (%)" << "," << "Tower 2 (%)" << "," << "Tower 3 (%)" << "," << "Tower 4 (%)" << endl;
+	outfile << "DBN" << "," << "# of Fibers" << "," << "Good End" << "," << "Abs Difference" << "," << "Fiber (%)" << "," << "10-15 (%)" << "," << "15-50 (%)" << "," << "50-75 (%)" << "," << "r75(%)" << "," << "RMS" << "," << "Tower 1 (%)" << "," << "Tower 2 (%)" << "," << "Tower 3 (%)" << "," << "Tower 4 (%)" << "," << "Date" << endl;
 
 	float perN, perW, diff;
 	for (int i = 0; i < (int)(n/2); i++){
@@ -59,10 +59,10 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 		diff = std::abs(perN - perW);
 		if (perW >= perN) {
 			nt -> GetEntry(2 * i + 1);
-			outfile << dbn << "," << counts << "," << "W" << "," << diff << "," << percent << "," << bad << "," << ok << "," << good << "," << (double)(good + ok + bad) << "," << (double)rms/100 << "," << t1 << "," << t2 << "," << t3 << "," << t4 << endl;
+			outfile << dbn << "," << counts << "," << "W" << "," << diff << "," << percent << "," << bad << "," << ok << "," << good << "," << (double)(good + ok + bad) << "," << (double)rms/100 << "," << t1 << "," << t2 << "," << t3 << "," << t4 << "," << date << endl;
 		} else {
 			nt -> GetEntry(2 * i);
-			outfile << dbn << "," << counts << "," << "N" << "," << diff << "," << percent << "," << bad << "," << ok << "," << good << "," << (double)(good + ok + bad) << "," << (double)rms/100 << "," << t1 << "," << t2 << "," << t3 << "," << t4 << endl;
+			outfile << dbn << "," << counts << "," << "N" << "," << diff << "," << percent << "," << bad << "," << ok << "," << good << "," << (double)(good + ok + bad) << "," << (double)rms/100 << "," << t1 << "," << t2 << "," << t3 << "," << t4 << "," << date << endl;
 		}
 	}	
 

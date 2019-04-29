@@ -12,7 +12,7 @@ mkdir "pictures/$folder/Analysis"
 		root -l -q -b 'fiberCounter.C('$dbn',"'$end'","'pictures/rootPic'","'pictures/$folder/Analysis'","'pictures/$folder/Analysis/$folder\_2ends.csv'")'
     	done
 	done
-root -l -q -b 'getBetter2.cpp("'pictures/$folder/Analysis'", "'$folder\_2ends.csv'","'pictures/$folder/Analysis/$folder\_1end.csv'")'
+root -l -q -b 'getBetter2.cpp("'pictures/$folder/Analysis'", "'$folder\_2ends.csv'","'pictures/$folder/Analysis/$folder\_1end.csv'","'$folder'")'
 cp 'analyze.sh' "pictures/$folder/Analysis"
 done
 
