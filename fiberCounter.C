@@ -8,7 +8,7 @@
 #include <TEllipse.h>
 #include <fstream>
 
-void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder = "test", const char *  output = "pictures/cropped", const char * output_folder = "test", const char * output_csv = "test/result.csv"){
+void fiberCounter_number(int dbn = 42, const char* ed = "N", const char * input_folder = "test", const char *  output = "pictures/cropped", const char * output_folder = "test", const char * output_csv = "test/result.csv"){
 
 //This part of code automatically crops the picture.
   TString pic = Form("%s/DBN_%d-%s.JPG",input_folder,dbn,ed);
@@ -16,17 +16,21 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
   gStyle->SetOptStat(0);
 
   int bins1 = 20;
-  int interv = 2500;
+  int intervx = 2500;
   int startx = 1500;
-  int starty = 1000; 
+  int intervy = 1400;
+  int starty = 1800; 
   double ratio1 = 0.5;  
   double ratio2 = 0.1;
 
-  TH2D *gcr = new TH2D("Intensity","Intensity", interv, startx, startx + interv, interv, starty, starty + interv);
-  TH2D *xgcr = new TH2D("IntensityX", "IntensityX", interv/bins1, startx, startx + interv, interv/bins1, starty, starty + interv);
+  TH2D *gcr = new TH2D("Intensity","Intensity", intervx, startx, startx + intervx, intervy, starty, starty + intervy);
+  TH2D *xgcr = new TH2D("IntensityB", "IntensityB", intervx/bins1, startx, startx + intervx, intervy/bins1, starty, starty + intervy);
   //TH2D *yg = new TH2D("IntensityY", "IntensityY", interv/bins1, starty, starty + interv, interv/bins1, startx, startx + interv);
-  TH1D *hxcr = new TH1D("Intenx","Intenx", interv/bins1, startx, startx + interv);
-  TH1D *hycr = new TH1D("Inteny","Inteny", interv/bins1, starty, starty + interv);
+  TH1D *hxcr = new TH1D("Intenx","Intenx", intervx/bins1, startx, startx + intervx);
+  TH1D *hycr = new TH1D("Inteny","Inteny", intervy/bins1, starty, starty + intervy);
+
+  cout << intervx/bins1 << endl;
+  cout << intervy/bins1 << endl;
 
   UInt_t *argbcr = img -> GetArgbArray();
 
@@ -36,8 +40,8 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
   //cout << "Width: " << xPixels << endl;
 
 
-  for (int col = 0; col < interv/bins1; ++col) {
-    for (int row = 0; row < interv/bins1; ++row) {
+  for (int col = 0; col < intervx/bins1; ++col) {
+    for (int row = 0; row < intervy/bins1; ++row) {
       int totInt = 0;
       for (int i = 0; i < bins1; ++i){
         for (int j = 0; j < bins1; ++j){
@@ -52,29 +56,35 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
       }
       }
       //cout << totInt << endl;
-      xgcr -> SetBinContent(col + 1, row + 1, totInt);
+      xgcr -> SetBinContent(col + 1, row + 1, totInt); 
       //yg -> SetBinContent(row + 1, col + 1, totInt);
     }
   }
 
-
-  for (int i = 1; i <= interv; i++){
-    int Intenx = 0;
-    int Inteny = 0;
-    for (int j = 1; j <= interv; j++){
-      Intenx = Intenx + xgcr -> GetBinContent(i,j);
-      Inteny = Inteny + xgcr -> GetBinContent(j,i);
+  for (int i = 1; i <= intervx/bins1; i++){
+    for (int j = 1; j <= intervy/bins1; j++){
+      hxcr -> SetBinContent(i, hxcr -> GetBinContent(i) + xgcr -> GetBinContent(i,j));
+      hycr -> SetBinContent(j, hycr -> GetBinContent(j) + xgcr -> GetBinContent(i,j));
     }
-    hxcr -> SetBinContent(i, Intenx);
-    hycr -> SetBinContent(i, Inteny);
   }
+
+ 
 
     //TH2D* rg = (TH2D*)g -> Clone("rg");
     //rg -> Rebin2D(bins1, bins1);
   int maxxcr = hxcr -> GetMaximum();
-  //cout << "Maximum x bin is " << maxx << " pixels" << endl;
+  cout << "Maximum x bin is " << maxxcr << " pixels" << endl;
   int maxycr = hycr -> GetMaximum();
-  //cout << "Maximum y bin is " << maxy << " pixels" << endl;
+  cout << "Maximum y bin is " << maxycr << " pixels" << endl;
+
+  //debug
+  //TCanvas* debuggy = new TCanvas("debuggy","");
+  //debuggy -> Divide(2,2);
+  //debuggy -> cd(1);
+  //hxcr -> Draw("colz");
+  //debuggy -> cd(2);
+  //hycr -> Draw("colz");
+  //return 0;
 
   int limxcr = hxcr -> FindFirstBinAbove(ratio1 * maxxcr) - 1;
   int edxcr = hxcr -> FindLastBinAbove(ratio1 * maxxcr);
@@ -124,11 +134,12 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
 
 
   TH2D* fgcr = (TH2D*)gcr -> Clone("fgcr");
-  TCanvas* c2cr = new TCanvas("c2","", widthx + 5 * bins1, widthy + 5 * bins1);
-  c2cr -> SetMargin(0,0,0,0);
-  c2cr -> cd();
-  img -> Draw();
-  c2cr -> SaveAs(Form("%s/DBN_%d-%s.png", output, dbn, ed));
+  //TCanvas* c2cr = new TCanvas("c2","", 1200,1200);
+  //c2cr -> SetMargin(0,0,0,0);
+  //c2cr -> cd();
+  //img -> Draw();
+  //c2cr -> SaveAs(Form("%s/DBN_%d-%s.png", output, dbn, ed));
+  img -> WriteImage(Form("%s/DBN_%d-%s.png", output, dbn, ed));
 
   TCanvas* c0cr = new TCanvas("c0cr","",700,700);
   c0cr -> Divide(2,2);
@@ -139,8 +150,8 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
   //g -> GetYaxis()->SetRange(starty + limy * bins1, starty + edy * bins1);
   //g->Draw("colz");
   xgcr -> SetAxisRange(0, 256 * bins1 * sqrt(bins1), "z");
-  xgcr -> GetXaxis()->SetRangeUser((limxcr -1.5) * bins1 + startx, (edxcr + 1.5) * bins1 + startx);
-  xgcr -> GetYaxis()->SetRangeUser((limycr -1.5) * bins1 + starty, (edycr + 1.5) * bins1 + starty);
+  xgcr -> GetXaxis()->SetRangeUser((limxcr - 1.5) * bins1 + startx, (edxcr + 1.5) * bins1 + startx);
+  xgcr -> GetYaxis()->SetRangeUser((limycr - 1.5) * bins1 + starty, (edycr + 1.5) * bins1 + starty);
   xgcr -> Draw("colz");
 
   c0cr -> cd(2);
@@ -149,8 +160,8 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
   //yg -> SetAxisRange(0, 256 *  bins1, "z");
   //yg -> Draw("colz");
   gcr -> SetAxisRange(0, 256, "z");
-  gcr -> GetXaxis()->SetRangeUser((limxcr -1.5) * bins1 + startx, (edxcr + 1.5) * bins1 + startx);
-  gcr -> GetYaxis()->SetRangeUser((limycr -1.5) * bins1 + starty, (edycr + 1.5) * bins1 + starty);
+  gcr -> GetXaxis()->SetRangeUser((limxcr - 1.5) * bins1 + startx, (edxcr + 1.5) * bins1 + startx);
+  gcr -> GetYaxis()->SetRangeUser((limycr - 1.5) * bins1 + starty, (edycr + 1.5) * bins1 + starty);
   gcr -> Draw("colz");
 
   c0cr -> cd(3);
@@ -225,7 +236,7 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
 
   UInt_t* argb   = img -> GetArgbArray();
   
-  TH2D* hOriginal = new TH2D("hOriginal","Spectrum of Green Light Picture",xPixels+1,.5,xPixels,yPixels+1,.5,yPixels);
+  TH2D* hOriginal = new TH2D("hOriginal", "Spectrum of Green Light Picture",xPixels+1,.5,xPixels,yPixels+1,.5,yPixels);
   TH2D* h = hOriginal;
 
   TH1D* h1d = new TH1D("h1d","Light Intensity of Pixels;Intensity of Pixels;Counts",256,0,256);
@@ -241,7 +252,7 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
 
   TH2D* seCor = new TH2D("seCorrelation","Intensity Size Correlation;Self-normalized Size;Self-normalized Intensity",50,0,3,50,0,3);
 
-  TH2D* gFibers = new TH2D("nFibers","Number of Fibers",25,0,xPixels, 25, 0, yPixels);
+  TH2D* gFibers = new TH2D("nFibers","Number of Fibers",25,0,xPixels,25,0,yPixels);
   TH2D* gInten = (TH2D*)gFibers->Clone("gInten");
   TH2D* densityInten   = (TH2D*)gFibers->Clone("densityInten");
   //TH2D* gNpix  = (TH2D*)gFibers->Clone("gNpix");
@@ -840,7 +851,6 @@ void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder 
 
   
   c0->SaveAs(Form("%s/DBN_%d-%s_histograms.pdf",output_folder,dbn,ed));
-
 
   std::ifstream infile(output_csv);
 
