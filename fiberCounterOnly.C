@@ -8,7 +8,7 @@
 #include <TEllipse.h>
 #include <fstream>
 
-void fiberCounter(int dbn = 42, const char* ed = "N", const char * input_folder = "pictures/cropped", const char * output_folder = "pictures/cropped", const char * output_csv = "pictures/cropped/result.csv"){
+void fiberCounterOnly(int dbn = 42, const char* ed = "N", const char * input_folder = "pictures/cropped", const char * output_folder = "pictures/cropped", const char * output_csv = "pictures/cropped/result.csv"){
 
 
   short **arrInten = new short*[10000];
