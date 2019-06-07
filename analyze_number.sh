@@ -11,7 +11,7 @@ mkdir "pictures/$folder/Temp"
 	for entry in pictures/$folder/*.JPG
 	do
   		echo ${entry:(-12):12}
-  		root -b -q -l 'crop.cpp("'${entry:(-12):8}'","'${entry:0:(${#entry}-13)}'","'pictures/cropped'","'pictures/$folder/Temp'")'
+  		root -b -q -l 'crop.cpp("'${entry:(-12):8}'","'${entry:9:(${#entry}-13)}'","'pictures/cropped'","'pictures/$folder/Temp'")'
   		convert pictures/$folder/Temp/${entry:(-12):8}-number.JPG -threshold 10% pictures/$folder/Temp/${entry:(-12):8}-numberbw.JPG 
   		dbnpic=$(python number.py pictures/$folder/Temp/${entry:(-12):8}-numberbw.JPG pictures/templates 2>&1)
   		mv $entry pictures/$folder/Original/$dbnpic
