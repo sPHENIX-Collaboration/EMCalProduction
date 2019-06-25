@@ -2,7 +2,7 @@ for tester in Joseph
 	do
 	for folder in 20190617
 		do
-		cd ~/sPHENIX/ScintillationTest
+		cd /home/sickles-lab/sPHENIX/ScintillationTest
     		for dbn in $folder/*.txt
     			do
 			root -l -q -b 'scintillation_gaussian_fit.C('${dbn:12:(${#dbn}-15)}',"'$folder'","'$folder/$folder\_result.csv'")'
@@ -13,7 +13,7 @@ for tester in Joseph
 		cd updatedb
 		python update_scintillation.py
 		
-		cp -r $folder ~/google-drive/
+		#cp -r $folder ~/google-drive/
 
 	done
 done
