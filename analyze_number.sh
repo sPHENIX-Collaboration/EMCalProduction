@@ -1,4 +1,4 @@
-for folder in 20190617
+for folder in $1
   do
   cd ~/sPHENIX/LightTransmission
   source ~/anaconda3/etc/profile.d/conda.sh
