@@ -1,6 +1,6 @@
-for tester in Joseph
+for tester in $2
 	do
-	for folder in 20190617
+	for folder in $1
 		do
 		cd /home/sickles-lab/sPHENIX/ScintillationTest
     		for dbn in $folder/*.txt
@@ -13,7 +13,8 @@ for tester in Joseph
 		cd updatedb
 		python update_scintillation.py
 		
-		#cp -r $folder ~/google-drive/
+		cd /home/sickles-lab/sPHENIX/ScintillationTest
+		cp -r $folder ~/google-drive/ScintillationTest\ Test
 
 	done
 done
