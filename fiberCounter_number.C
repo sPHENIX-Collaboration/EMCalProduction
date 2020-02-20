@@ -40,7 +40,7 @@ void fiberCounter_number(const char* dbn = "42", const char* ed = "N", const cha
 
   //short seedThr = 100;
   //short bkgThr = 80;
-  short absBkg = 30;
+  short absBkg = 80;
   int absAreaCut = 20;
   double intShift = 0.4;
   
@@ -114,9 +114,7 @@ void fiberCounter_number(const char* dbn = "42", const char* ed = "N", const cha
     }
   }
   
-  TCanvas* c0 = new TCanvas("c0","",700,700);
-  c0->Divide(2,3);
-  c0->cd(1);
+  TCanvas* c1 = new TCanvas("c1","",700,700);
   h1d->SetAxisRange(0.5,2e6,"Y");
   h1d->Draw();
   h1d->SetTitleOffset(1.4,"Y");
@@ -133,7 +131,12 @@ void fiberCounter_number(const char* dbn = "42", const char* ed = "N", const cha
   //drawText(Form("seedThr = %d",seedThr),0.6,0.8);
   jumSun(absBkg,0.5,absBkg,2e6);
   jumSun(bkgThr,0.5,bkgThr,2e6);
-  gPad->SetLogy();
+  gPad->SetLogy();  
+  c1->SaveAs(Form("%s/DBN_%s-%s_pixels.pdf",output_folder,dbn,ed));
+
+  TCanvas* c0 = new TCanvas("c0","",700,700);
+  c0->Divide(2,3);
+  c0->cd(1);
   //c0->cd(2);
   //h->SetAxisRange(0,256,"z");
   //h->Draw("colz");
@@ -510,7 +513,7 @@ void fiberCounter_number(const char* dbn = "42", const char* ed = "N", const cha
   cout << "Found " << nbundle << " bundles of fibers" << endl;
   cout << "Dropped " << ndrop << " fibers of small area or intensity" << endl;
 
-  if (nCorrected >= 2615) {
+  if (nCorrected >= 2561) {
     cout << "Passed the overall bar" << endl;
     bool redo = false;
     if ((nClst1 > 667) || (nClst2 > 667) || (nClst3 > 667) || (nClst4 > 667)){
