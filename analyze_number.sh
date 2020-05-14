@@ -26,8 +26,8 @@ for folder in $1
   cp 'analyze_number.sh' "pictures/$folder/Analysis"
 
   cp pictures/$folder/Analysis/$folder\_1end.csv  updatedb/blocks.csv
-  cp -r pictures/$folder/Original ~/google-drive/Light\ Transmission\ Test/Block\ pictures/Original/$folder
-  cp -r pictures/$folder/Analysis ~/google-drive/Light\ Transmission\ Test/Analysis/$folder\_pic$folder
+  cp -r pictures/$folder/Original ~/google-drive/QA\ tests/Light\ Transmission\ Test/Block\ pictures/Original/$folder
+  cp -r pictures/$folder/Analysis ~/google-drive/QA\ tests/Light\ Transmission\ Test/Analysis/$folder\_pic$folder
   cd updatedb
   conda deactivate
   conda deactivate
