@@ -1,8 +1,9 @@
 for folder in $1
   do
+  #cd to master folder and source your conda and root
   cd /home/sickles-lab/sPHENIX/LightTransmission
   source /home/sickles-lab/anaconda3/etc/profile.d/conda.sh
-  #source /Users/cherwang/anaconda3/etc/profile.d/conda.sh
+  
   eval "$(conda shell.bash hook)"
   conda activate ocr
 
@@ -26,13 +27,13 @@ for folder in $1
   root -l -q -b 'getBetter2.cpp("'pictures/monitoring/$folder/Analysis'", "'$folder\_2ends.csv'","'pictures/monitoring/$folder/Analysis/$folder\_1end.csv'","'$folder'")'
   #cp 'analyze_number.sh' "pictures/$folder/Analysis"
 
-  cp pictures/monitoring/$folder/Analysis/$folder\_1end.csv  updatedb_monitor/blocks.csv
-  cp -r pictures/monitoring/$folder/Original ~/google-drive/Light\ Transmission\ Test/Block\ pictures/Monitoring/Original/$folder
-  cp -r pictures/monitoring/$folder/Analysis ~/google-drive/Light\ Transmission\ Test/Block\ pictures/Monitoring/Analysis/$folder\_pic$folder
-  cd updatedb_monitor
-  conda deactivate
-  conda deactivate
-  python update_fibermonitoring.py
+  #cp pictures/monitoring/$folder/Analysis/$folder\_1end.csv  updatedb_monitor/blocks.csv
+  #cp -r pictures/monitoring/$folder/Original ~/google-drive/Light\ Transmission\ Test/Block\ pictures/Monitoring/Original/$folder
+  #cp -r pictures/monitoring/$folder/Analysis ~/google-drive/Light\ Transmission\ Test/Block\ pictures/Monitoring/Analysis/$folder\_pic$folder
+  #cd updatedb_monitor
+  #conda deactivate
+  #conda deactivate
+  #python update_fibermonitoring.py
 
 
 done
