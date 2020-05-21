@@ -16,12 +16,12 @@ for folder in $1
 	echo $b
     root -b -q -l 'crop.cpp("'$b'","'$tmpf'","'pictures/cropped'","'pictures/$folder/Temp'")'
     convert pictures/$folder/Temp/$b-number.JPG -threshold 10% pictures/$folder/Temp/$b-numberbw.JPG 
-  	dbnpic=$(python number.py pictures/$folder/Temp/${entry:(-12):8}-numberbw.JPG pictures/templates 2>&1)
+  	dbnpic=$(python number.py pictures/$folder/Temp/$b-numberbw.JPG pictures/templates 2>&1)
   	mv $entry pictures/$folder/Original/$dbnpic
-  	mv pictures/cropped/${entry:(-12):8}-block.JPG pictures/cropped/$dbnpic
+  	mv pictures/cropped/$b-block.JPG pictures/cropped/$dbnpic
   	root -b -q -l 'fiberCounter_number.C("'${dbnpic:(-10):4}'","'${dbnpic:(-5):1}'","'pictures/cropped'","'pictures/$folder/Analysis'","'pictures/$folder/Analysis/$folder\_2ends.csv'")'
-  	rm pictures/$folder/Temp/${entry:(-12):8}-number.JPG
-  	rm pictures/$folder/Temp/${entry:(-12):8}-numberbw.JPG
+  	rm pictures/$folder/Temp/$b-number.JPG
+  	rm pictures/$folder/Temp/$b-numberbw.JPG
     cp pictures/cropped/$dbnpic ~/google-drive/QA\ tests/Light\ Transmission\ Test/Block\ pictures/Cropped
   done
   rm -r pictures/$folder/Temp
