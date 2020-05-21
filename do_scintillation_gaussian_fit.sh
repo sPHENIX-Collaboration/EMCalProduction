@@ -5,7 +5,9 @@ for tester in $2
 		cd /home/sickles-lab/sPHENIX/ScintillationTest
     		for dbn in $folder/*.txt
     			do
-			root -l -q -b 'scintillation_gaussian_fit.C('${dbn:12:(${#dbn}-15)}',"'$folder'","'$folder/$folder\_result.csv'")'
+			DBN=${dbn%.*}
+			DBN=${DBN#*/}
+			root -l -q -b 'scintillation_gaussian_fit.C('$DBN',"'$folder'","'$folder/$folder\_result.csv'")'
     		done
     		root -l -q -b 'doRatio.cpp("'$folder'","'$folder\_result.csv'","'$folder/$folder\_ratio.csv'", "'$tester'")'
 		cp 'do_scintillation_gaussian_fit.sh' "$folder"
