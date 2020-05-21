@@ -1,3 +1,5 @@
+source /home/sickles-lab/anaconda3/etc/profile.d/conda.sh
+eval "$(conda shell.bash hook)"
 for tester in $2
 	do
 	for folder in $1
@@ -14,6 +16,8 @@ for tester in $2
 		cp 'do_scintillation_gaussian_fit.sh' "$folder"
 		cp $folder/$folder\_ratio.csv  updatedb/blocks.csv
 		cd updatedb
+		conda deactivate
+		conda deactivate
 		python update_scintillation.py
 		
 		cd /home/sickles-lab/sPHENIX/ScintillationTest
