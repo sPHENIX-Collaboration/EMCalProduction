@@ -7,6 +7,7 @@ for tester in $2
     			do
 			DBN=${dbn%.*}
 			DBN=${DBN#*/}
+			DBN=${DBN#*/}
 			root -l -q -b 'scintillation_gaussian_fit.C("'$DBN'","'$folder'","'$folder/$folder\_result.csv'")'
     		done
     		root -l -q -b 'doRatio.cpp("'$folder'","'$folder\_result.csv'","'$folder/$folder\_ratio.csv'", "'$tester'")'
