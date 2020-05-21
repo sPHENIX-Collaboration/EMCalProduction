@@ -12,6 +12,7 @@ for folder in $1
 	 do
     	tmpf=${entry%/*}
     	tmp=${entry#*/}
+	tmp=${tmp#*/}
     	b=${tmp%.*}
 	echo $b
     root -b -q -l 'crop.cpp("'$b'","'$tmpf'","'pictures/cropped'","'pictures/$folder/Temp'")'
