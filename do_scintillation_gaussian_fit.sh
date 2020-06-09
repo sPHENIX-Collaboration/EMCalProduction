@@ -12,9 +12,13 @@ for tester in $2
 			DBN=${DBN#*dbn}
 			root -l -q -b 'scintillation_gaussian_fit.C('$DBN',"'$folder'","'$folder/$folder\_result.csv'")'
     		done
-		fn=${folder%.*}
-		dot=${folder#*.}
-		new=$fn.$dot
+		new=$folder
+		if [ ${#folder} -gt 8 ]
+		then
+			fn=${folder%-*}
+			dot=${folder#*-}
+			new=$fn.$dot
+		fi
     		root -l -q -b 'doRatio.cpp("'$folder'","'$folder\_result.csv'","'$folder/$folder\_ratio.csv'", "'$tester'","'$new'")'
 		cp 'do_scintillation_gaussian_fit.sh' "$folder"
 		cp $folder/$folder\_ratio.csv  updatedb/blocks.csv
