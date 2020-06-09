@@ -1,4 +1,4 @@
-void doRatio(const char* path = "20190423", const char* input = "result.csv", const char* outputfile = "result_1end.csv", const char* tester = "Xiaoning"){
+void doRatio(const char* path = "20190423", const char* input = "result.csv", const char* outputfile = "result_1end.csv", const char* tester = "Xiaoning", const char* date = "20200201"){
 	
 	// code for get ratio of scintillation given the starting and end reference
 	//Author: Xiaoning Wang, inspired by Anabel's Gaussian fit code
@@ -58,7 +58,7 @@ void doRatio(const char* path = "20190423", const char* input = "result.csv", co
 		}
 		else {
 			ratio = sci/cal;
-			outfile << dbn << "," << sci << "," << cal << "," << ratio << "," << tester << "," << path << endl;
+			outfile << dbn << "," << sci << "," << cal << "," << ratio << "," << tester << "," << date << endl;
 		}
 	}
 
