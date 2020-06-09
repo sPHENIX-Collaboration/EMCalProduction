@@ -26,7 +26,10 @@ for folder in $1
     cp pictures/cropped/$dbnpic ~/google-drive/QA\ tests/Light\ Transmission\ Test/Block\ pictures/Cropped
   done
   rm -r pictures/$folder/Temp
-  root -l -q -b 'getBetter2.cpp("'pictures/$folder/Analysis'", "'$folder\_2ends.csv'","'pictures/$folder/Analysis/$folder\_1end.csv'","'$folder'")'
+  fn=${folder%.*}
+  dot=${folder#*.}
+  new=$fn.$dot
+  root -l -q -b 'getBetter2.cpp("'pictures/$folder/Analysis'", "'$folder\_2ends.csv'","'pictures/$folder/Analysis/$folder\_1end.csv'","'$new'")'
   cp 'analyze_number.sh' "pictures/$folder/Analysis"
 
   cp pictures/$folder/Analysis/$folder\_1end.csv  updatedb/blocks.csv
