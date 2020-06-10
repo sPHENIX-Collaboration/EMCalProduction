@@ -2,10 +2,10 @@
 #include<string>
 #include<fstream>
 
-void getBetter2(const char* path = "pictures", const char* input = "result.csv", const char* outputfile = "result_1end.csv", const char* date = "20190426"){
+void getBetter2(const char* path = "pictures", const char* input = "result.csv", const char* outputfile = "result_1end.csv",const char* date = "20190426"){
 	
 	// code for get the better end of a block
-	//Author: Xiaoning Wang, inspired by Anabel's Gaussian fit code
+	//Author: Xiaoning Wang
 	
 	ofstream file;
 	file.open(Form("%s/temp_%s", path, input));
@@ -15,7 +15,7 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 
  	std::string title;
 	getline(inputfile,title);
-
+	
 	int st = 0;
 	int ed = 0;
 
@@ -66,7 +66,7 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 		//cout << i << " loop" << ": " << "DBN size: " << DBN.size() << endl; 
 		bool newBlock = true;
 		for (int j = 0; j < DBN.size(); j++){
-			//cout << "DBN[j]: " << DBN[j] << " dbn: " << dbn << endl;
+			//cout << "DBN[" << j <<"]: " << DBN[j] << " dbn: " << dbn << endl;
 			if (dbn == DBN[j]){
 				newBlock = false;
 			}
@@ -76,6 +76,7 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 		}
 	}
 	int nn, nw;
+	
 	for (int k = 0; k < (int)n/2; k++){
 		for (int l = 0; l < n; l++){
 			nt -> GetEntry(l);
@@ -83,11 +84,9 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 				if (End == 1){
 					perN = percent;
 					nn = l;
-				} else {
-				if (End == 0){
+				} else if (End == 0){
 					perW = percent;
 					nw = l;
-					}
 				}
 			}
 		}
@@ -102,4 +101,5 @@ void getBetter2(const char* path = "pictures", const char* input = "result.csv",
 	}	
 
 	outfile.close();
+	cout << "local files processing finished" << endl;
 }
