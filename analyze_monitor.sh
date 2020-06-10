@@ -16,7 +16,7 @@ mkdir "pictures/$folder/Analysis"
     	for end in n w
     	do
 		echo processing $dbn-$end
-		root -l -q -b 'fiberCounter_monitor.C("'$dbn'","'$end'","pictures/$folder","'pictures/$folder/Analysis'","'pictures/$folder/Analysis/results_all_2ends.csv'")'
+		root -l -q -b 'fiberCounter_monitor.C("'$dbn'","'$end'","'pictures/$folder'","'pictures/$folder/Analysis'","'pictures/$folder/Analysis/results_all_2ends.csv'")'
     	done
 	done
 #root -l -q -b 'getBetter2.cpp("'pictures/$folder/Analysis'", "'pictures/$folder\_2ends.csv'","'pictures/$folder/Analysis/$folder\_1end.csv'","'$folder'")'
