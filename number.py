@@ -69,6 +69,9 @@ def main(targetpic, templates):
         ystart=int(np.amin(num[str(a)][:, 1]))
         yend=int(np.amax(num[str(a)][:, 1]))
         targetn=target[xstart:xend, ystart:yend]
+        im = Image.fromarray(targetn.astype('uint8'))
+        im.save(str(a)+"th.jpg")
+
         # use response_t to store the response of each template
         response_t={'0': 0, '1': 0, '2': 0, '3': 0, '4': 0, 
                     '5': 0, '6': 0, '7': 0, '8': 0, '9': 0}

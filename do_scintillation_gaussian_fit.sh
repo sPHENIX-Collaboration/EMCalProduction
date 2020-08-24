@@ -5,19 +5,24 @@ for tester in $2
 	for folder in $1
 		do
 		cd /home/sickles-lab/sPHENIX/ScintillationTest
-    		for dbn in $folder/*.txt
-    			do
+		rm $folder/DBN*
+		rm $folder/*.csv
+    	for dbn in $folder/*.txt
+    	do
 			DBN=${dbn%.*}
 			DBN=${DBN#*/}
 			DBN=${DBN#*dbn}
 			root -l -q -b 'scintillation_gaussian_fit.C('$DBN',"'$folder'","'$folder/$folder\_result.csv'")'
-    		done
+    	done
 		new=$folder
 		if [ ${#folder} -gt 8 ]
 		then
-			fn=${folder%-*}
-			dot=${folder#*-}
-			new=$fn.$dot
+			if [[ "$folder" == *"-"* ]]
+			then
+				fn=${folder%-*}
+				dot=${folder#*-}
+				new=$fn.$dot
+			fi
 		fi
     		root -l -q -b 'doRatio.cpp("'$folder'","'$folder\_result.csv'","'$folder/$folder\_ratio.csv'", "'$tester'","'$new'")'
 		cp 'do_scintillation_gaussian_fit.sh' "$folder"
