@@ -13,7 +13,7 @@ do
   for entry in pictures/$folder/*.JPG
 	do
     	tmpf=${entry%/*}
-	    tmp=${a##*/}
+	    tmp=${entry##*/}
     	b=${tmp%.*}
       tmpdbn=${b%-*}
 	  echo "processing $b'
